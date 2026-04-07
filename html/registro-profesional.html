@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro de Profesionales – CIS Madrid</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/estilos_portal.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-wrapper">
+    <div class="login-card" style="max-width:520px">
+
+      <div class="login-logo">
+        <img src="../imagenes/logo.svg" alt="Logo CIS" class="logo-svg" style="height:52px;" />
+        <div class="logo-text"><h1>CIS</h1><span>Área Profesional</span></div>
+      </div>
+
+      <h2 class="login-title">Crear cuenta profesional</h2>
+      <p class="login-subtitle">Necesitarás el código de acceso facilitado por la dirección del centro.</p>
+
+      <form id="registroProfesionalForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre completo *</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Ej: Laura Sánchez" required />
+          </div>
+          <div class="form-group">
+            <label for="tlf">Teléfono *</label>
+            <input type="tel" id="tlf" name="tlf" placeholder="612345678" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Correo electrónico *</label>
+          <input type="email" id="email" name="email" placeholder="profesional@cis-madrid.es" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña * <small>(mín. 8 caracteres)</small></label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required />
+        </div>
+        <div class="form-group codigo-acceso-group">
+          <label for="codigoAcceso">🔑 Código de acceso del centro *</label>
+          <input type="text" id="codigoAcceso" name="codigoAcceso" placeholder="Facilitado por la dirección" required autocomplete="off" />
+          <small class="form-hint">Si no conoces el código, contacta con la dirección del centro.</small>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Crear cuenta profesional</button>
+      </form>
+
+      <p class="login-link">¿Ya tienes cuenta? <a href="login-profesional.html">Iniciar sesión</a></p>
+      <p class="login-link" style="margin-top:.5rem"><a href="index.html">← Volver al sitio web</a></p>
+
+    </div>
+  </div>
+
+  <script src="../js/main.js" defer></script>
+</body>
+</html>

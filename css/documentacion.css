@@ -1,0 +1,285 @@
+/* ============================================================
+   CIS Madrid — Estilos de la documentación técnica
+   Proyecto_CIS_Documentacion.html
+   ============================================================ */
+
+body {
+    font-family: 'Calibri', 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: white;
+    box-sizing: border-box;
+    word-break: break-word;
+}
+h1 {
+    color: #4A90A4;
+    border-bottom: 3px solid #7EC8A4;
+    padding-bottom: 10px;
+    font-size: 28px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+h2 {
+    color: #4A90A4;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 22px;
+    border-left: 4px solid #4A90A4;
+    padding-left: 10px;
+}
+h3 {
+    color: #2c3e50;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+h4 {
+    color: #34495e;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+ul { margin: 10px 0; padding-left: 25px; }
+li { margin: 8px 0; }
+.code-block {
+    background: #f5f5f5;
+    border-left: 4px solid #4A90A4;
+    padding: 15px;
+    margin: 15px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    overflow-x: auto;
+}
+.section {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px 0;
+}
+/* Envuelve las tablas para permitir scroll horizontal en móvil */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 20px 0;
+}
+.table-wrap table { margin: 0; }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+table th {
+    background: #4A90A4;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+table tr:nth-child(even) { background: #f9f9f9; }
+.note {
+    border-left: 4px solid #27ae60;
+    background: #eafaf1;
+    padding: 15px;
+    margin: 15px 0;
+}
+.warning {
+    border-left: 4px solid #e74c3c;
+    background: #fadbd8;
+    padding: 15px;
+    margin: 15px 0;
+}
+.info {
+    border-left: 4px solid #3498db;
+    background: #ebf5fb;
+    padding: 15px;
+    margin: 15px 0;
+}
+.page-break {
+    page-break-after: always;
+    margin: 40px 0;
+    border-top: 2px dashed #ccc;
+    padding-top: 40px;
+}
+.logo-section {
+    text-align: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #4A90A4, #7EC8A4);
+    color: white;
+    border-radius: 10px;
+}
+.tech-stack {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+.tech-item {
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+.tech-item h5 { margin: 0 0 10px 0; color: #4A90A4; }
+.badge-done  { color: #27ae60; font-weight: bold; }
+.badge-pend  { color: #e67e22; font-weight: bold; }
+
+/* ── Logo header ── */
+.logo-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+.logo-svg  { height: 64px; width: 64px; flex-shrink: 0; }
+.logo-text { text-align: left; }
+.logo-h1   { color: white; margin: 0; font-size: 36px; letter-spacing: 2px; }
+.logo-h2   { color: white; margin: 4px 0 0; font-size: 16px; font-weight: 400; border: none; padding: 0; }
+.logo-p    { margin: 4px 0 0; font-size: 13px; opacity: .85; }
+
+/* ── Metadatos del documento ── */
+.doc-meta {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* ── Grid de dificultades atendidas ── */
+.dificultades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+}
+.dificultad-item {
+    background: #e8f4fd;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* ── Paleta de colores ── */
+.paleta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+.paleta-item { text-align: center; }
+.swatch {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    margin: 0 auto 10px;
+}
+.swatch--border { border: 1px solid #ddd; }
+
+/* ── Separador y pie de página ── */
+.doc-hr {
+    margin: 40px 0;
+    border: none;
+    border-top: 2px solid #e0e0e0;
+}
+.doc-footer {
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    margin-top: 40px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* ── Tablet (≤768px) ── */
+@media (max-width: 768px) {
+    body {
+        padding: 24px 16px;
+    }
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 16px; }
+
+    .logo-section {
+        padding: 16px 12px;
+        border-radius: 8px;
+    }
+    .logo-inner { gap: 12px; }
+    .logo-h1 { font-size: 28px; }
+    .logo-h2 { font-size: 14px; }
+
+    .tech-stack {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+    .paleta-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+    .code-block {
+        font-size: 12px;
+        padding: 12px;
+    }
+    .section { padding: 14px; }
+}
+
+/* ── Móvil (≤480px) ── */
+@media (max-width: 480px) {
+    body { padding: 16px 12px; }
+    h1 { font-size: 20px; margin-bottom: 20px; }
+    h2 { font-size: 16px; }
+    h3 { font-size: 15px; }
+
+    /* Logo en columna */
+    .logo-inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    .logo-text { text-align: center; }
+    .logo-svg  { width: 52px; height: 52px; }
+    .logo-h1   { font-size: 24px; }
+    .logo-h2   { font-size: 13px; }
+
+    /* Grids en dos columnas */
+    .tech-stack,
+    .dificultades-grid,
+    .paleta-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Tablas: scroll horizontal */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .code-block {
+        font-size: 11px;
+        padding: 10px;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+    .page-break { margin: 24px 0; padding-top: 24px; }
+    .doc-meta   { font-size: 13px; }
+    .doc-footer { font-size: 11px; }
+}
+
+/* ── Móvil muy pequeño (≤360px) ── */
+@media (max-width: 360px) {
+    .tech-stack,
+    .dificultades-grid,
+    .paleta-grid {
+        grid-template-columns: 1fr;
+    }
+    h1 { font-size: 18px; }
+}

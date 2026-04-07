@@ -1,0 +1,33 @@
+
+-- ================================================================
+-- CREAR USUARIO ADMINISTRADOR - CIS Madrid
+-- ================================================================
+-- OPCIÓN A: Usar el script Node (recomendado, no hay problemas con $)
+--
+--   1. Abre una consola en la carpeta api/
+--   2. Ejecuta: node crear_admin.js
+--
+-- OPCIÓN B: SQL manual en phpMyAdmin > base de datos cis_madrid
+-- ================================================================
+
+-- Elimina admin anterior si existe
+DELETE FROM usuarios WHERE rol = 'admin';
+
+-- Crea la cuenta de administradora (contraseña: CIS2026admin)
+-- NOTA: El hash fue generado con bcrypt rounds=12
+INSERT INTO usuarios (nombre, email, telefono, password_hash, rol, activo)
+VALUES (
+  'Ana Sara Lafuente',
+  'a.lafuente.defrutos@gmail.com',
+  '+34605426298',
+  '$2a$12$rj8fm8gzY0s2bOH3bPY./u6q5YtXsI0jAPWghGz1RuhoPY876gk5G',
+  'admin',
+  1
+);
+
+-- ================================================================
+-- Credenciales de acceso al panel admin:
+--   Email:    a.lafuente.defrutos@gmail.com
+--   Password: CIS2026admin
+--   URL:      html/login-admin.html
+-- ================================================================

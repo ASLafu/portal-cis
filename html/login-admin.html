@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administración – CIS Madrid</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/estilos_portal.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-wrapper">
+    <div class="login-card">
+
+      <div class="login-logo">
+        <img src="../imagenes/logo.svg" alt="Logo CIS" class="logo-svg" style="height:52px;" />
+        <div class="logo-text"><h1>CIS</h1><span>Administración</span></div>
+      </div>
+
+      <h2 class="login-title">Panel de Administración</h2>
+      <p class="login-subtitle">Acceso exclusivo para la administradora del centro.</p>
+
+      <form id="loginAdminForm" novalidate>
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" placeholder="admin@cis-madrid.es" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Entrar al panel</button>
+      </form>
+
+      <p class="login-link" style="margin-top:1.2rem"><a href="index.html">← Volver al sitio web</a></p>
+    </div>
+  </div>
+
+  <script defer src="../js/main.js"></script>
+</body>
+</html>

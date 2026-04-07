@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto CIS - Centro de Intervención Psicoeducativa</title>
+    <link rel="stylesheet" href="css/documentacion.css" />
+</head>
+<body>
+
+<div class="logo-section">
+    <div class="logo-inner">
+        <img src="imagenes/logo.svg" alt="Logotipo CIS" class="logo-svg" />
+        <div class="logo-text">
+            <h1 class="logo-h1">CIS</h1>
+            <h2 class="logo-h2">Centro de Intervención Psicoeducativa</h2>
+            <p class="logo-p">Madrid • Atención Especializada</p>
+        </div>
+    </div>
+</div>
+
+<h1>📋 Proyecto CIS — Especificaciones Técnicas</h1>
+
+<p class="doc-meta">
+    <strong>Documento:</strong> Documentación técnica completa del proyecto web<br>
+    <strong>Fecha de actualización:</strong> 6 de abril de 2026<br>
+    <strong>Versión:</strong> 2.1 — Panel admin operativo
+</p>
+
+<!-- ============================================================ -->
+<div class="section">
+    <h2>🎯 Introducción al Proyecto</h2>
+    <p>El <strong>Centro de Intervención Psicoeducativa (CIS)</strong> es una institución especializada en la atención integral de niños con dificultades del aprendizaje y trastornos del neurodesarrollo. Nuestro enfoque multidisciplinario combina tratamientos especializados con la participación activa de las familias.</p>
+
+    <h3>📍 Misión</h3>
+    <p>Acompañar el desarrollo integral de cada niño y familia, ofreciendo intervenciones especializadas en dificultades del aprendizaje, el lenguaje y el neurodesarrollo, desde un enfoque respetuoso, empático y basado en la evidencia científica.</p>
+
+    <h3>🎯 Dificultades Atendidas</h3>
+    <div class="dificultades-grid">
+        <div class="dificultad-item"><strong>TDAH</strong><br><small>Trastorno por Déficit de Atención</small></div>
+        <div class="dificultad-item"><strong>TEA</strong><br><small>Trastorno del Espectro Autista</small></div>
+        <div class="dificultad-item"><strong>TEL</strong><br><small>Trastorno Específico del Lenguaje</small></div>
+        <div class="dificultad-item"><strong>Dislexia</strong><br><small>Dificultades en la lectura</small></div>
+        <div class="dificultad-item"><strong>Discalculia</strong><br><small>Dificultades matemáticas</small></div>
+        <div class="dificultad-item"><strong>Disortografía</strong><br><small>Dificultades en escritura</small></div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+
+<h2>📁 Estructura de Archivos del Proyecto</h2>
+<div class="code-block">
+C:\Proyectos\<br>
+├── html/<br>
+│   ├── index.html                   (Página principal)<br>
+│   ├── portal.html                  (Portal privado – familias)<br>
+│   ├── login.html                   (Acceso familias)<br>
+│   ├── registro.html                (Registro familias)<br>
+│   ├── login-profesional.html       (Acceso exclusivo profesionales)<br>
+│   ├── registro-profesional.html    (Alta con código de centro)<br>
+│   ├── profesional-portal.html      (Dashboard profesionales)<br>
+│   ├── confirmar-cita.html          (Confirmación de cita)<br>
+│   ├── tdah.html / tea.html / tel.html<br>
+│   ├── dislexia.html / discalculia.html / disortografia.html<br>
+│   ├── psicologa.html / terapeuta.html / logopeda.html<br>
+│   └── aviso-legal.html / privacidad.html / cookies.html<br>
+├── css/<br>
+│   ├── styles.css                   (Estilos principales)<br>
+│   └── estilos_portal.css           (Estilos portales)<br>
+├── js/<br>
+│   ├── main.js                      (JS principal – formularios, login, registro, admin)<br>
+│   ├── portal-app.js                (Renderizado portal familias)<br>
+│   ├── portal-data.js               (Datos demo portal)<br>
+│   ├── profesional-app.js           (Renderizado portal profesional)<br>
+│   └── admin-app.js                 (Renderizado panel administración)<br>
+├── api/<br>
+│   ├── server.js                    (Servidor Express – 18 endpoints + archivos estáticos)<br>
+│   ├── package.json                 (Dependencias Node.js)<br>
+│   ├── .env                         (Variables de entorno)<br>
+│   ├── crear_admin.js               (Crea / resetea cuenta admin directamente en BD)<br>
+│   ├── sql_admin.txt                (Referencia SQL con credenciales admin)<br>
+│   ├── instalar_dependencias.bat    (Instala npm packages)<br>
+│   └── ejecutar_api.bat             (Arranca el servidor)<br>
+├── imagenes/                        (Logo SVG, imágenes)<br>
+├── acceso_admin.txt                 (Credenciales y URL del panel admin)<br>
+└── cis_madrid.sql                   (Base de datos MySQL completa)
+</div>
+
+<!-- ============================================================ -->
+<h2>🎨 Frontend — HTML / CSS</h2>
+
+<h3>📄 Páginas principales</h3>
+<table>
+    <tr><th>Página</th><th>Descripción</th><th>Acceso</th></tr>
+    <tr><td><strong>index.html</strong></td><td>Web pública: hero, intervención, profesionales, tarifas, citas, escuela de padres, contacto</td><td>Todos</td></tr>
+    <tr><td><strong>portal.html</strong></td><td>Dashboard privado: citas, diario de sesiones, facturación, consentimientos pendientes</td><td>Familias registradas</td></tr>
+    <tr><td><strong>login.html</strong></td><td>Acceso al portal de familias con validación inline</td><td>Familias</td></tr>
+    <tr><td><strong>registro.html</strong></td><td>Alta de cuenta familiar conectada a la API</td><td>Familias</td></tr>
+    <tr><td><strong>login-profesional.html</strong></td><td>Acceso exclusivo para profesionales del centro</td><td>Profesionales</td></tr>
+    <tr><td><strong>registro-profesional.html</strong></td><td>Alta con código de acceso secreto del centro</td><td>Profesionales</td></tr>
+    <tr><td><strong>profesional-portal.html</strong></td><td>Dashboard: crear perfiles de pacientes, gestionar consentimientos</td><td>Profesionales</td></tr>
+    <tr><td><strong>login-admin.html</strong></td><td>Acceso exclusivo para la administradora del sitio</td><td>Administradora</td></tr>
+    <tr><td><strong>admin-portal.html</strong></td><td>Panel completo: dashboard estadísticas, usuarios, pacientes, citas, consentimientos</td><td>Administradora</td></tr>
+    <tr><td><strong>confirmar-cita.html</strong></td><td>Resumen de datos de la cita solicitada</td><td>Todos</td></tr>
+</table>
+
+<h3>🎨 Paleta de Colores</h3>
+<div class="paleta-grid">
+    <div class="paleta-item"><div class="swatch" style="background:#4A90A4;"></div><strong>Primary</strong><br><small>#4A90A4</small></div>
+    <div class="paleta-item"><div class="swatch" style="background:#7EC8A4;"></div><strong>Accent</strong><br><small>#7EC8A4</small></div>
+    <div class="paleta-item"><div class="swatch" style="background:#2D6A4F;"></div><strong>Pro Dark</strong><br><small>#2D6A4F (portal pro)</small></div>
+    <div class="paleta-item"><div class="swatch swatch--border" style="background:#F0F7F9;"></div><strong>Soft</strong><br><small>#F0F7F9</small></div>
+    <div class="paleta-item"><div class="swatch" style="background:#2C3E50;"></div><strong>Text</strong><br><small>#2C3E50</small></div>
+</div>
+
+<h3>✍️ Tipografía</h3>
+<ul>
+    <li><strong>Fuente principal:</strong> Lexend (Google Fonts) — moderna y de alta legibilidad</li>
+    <li><strong>Fuente títulos:</strong> Lora (Google Fonts) — elegante para encabezados</li>
+    <li><strong>Fuente monospace:</strong> Courier New — código de acceso profesional</li>
+    <li><strong>Tamaños:</strong> Responsive con unidades relativas (rem)</li>
+</ul>
+
+<h3>📱 Diseño Responsivo</h3>
+<ul>
+    <li><strong>Mobile-first:</strong> Diseño optimizado para móviles primero</li>
+    <li><strong>Breakpoints:</strong> 400px (móvil pequeño), 768px (tablet), 850px (portal), 1024px (desktop)</li>
+    <li><strong>Sin animaciones:</strong> Eliminadas por decisión de diseño — interfaz limpia y directa</li>
+    <li><strong>Grid system:</strong> CSS Grid y Flexbox nativos</li>
+</ul>
+
+<h3>🔒 Control de Acceso (Frontend)</h3>
+<ul>
+    <li><strong>Formulario de cita:</strong> Solo visible si hay sesión activa en <code>sessionStorage</code>. Sin sesión → aviso con botones de login/registro</li>
+    <li><strong>Portal familias:</strong> Guardia en <code>portal-app.js</code> — redirige a login si no hay <code>cis_usuario</code></li>
+    <li><strong>Portal profesional:</strong> Guardia en <code>profesional-app.js</code> — redirige a login si no hay <code>cis_pro</code></li>
+    <li><strong>Logout:</strong> Limpia <code>sessionStorage</code> antes de redirigir</li>
+</ul>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+
+<h2>⚙️ JavaScript — Funcionalidades</h2>
+
+<h3>main.js — Funcionalidades principales</h3>
+<table>
+    <tr><th>Módulo</th><th>Descripción</th></tr>
+    <tr><td>Navegación móvil</td><td>Menú hamburguesa con toggle y cierre al pulsar enlace</td></tr>
+    <tr><td>Formulario de cita</td><td>Validación de teléfono español, email, campos requeridos. Auth-wall si no hay sesión</td></tr>
+    <tr><td>Login familias</td><td>fetch → POST /api/login. Guarda sesión en sessionStorage (cis_usuario). Error inline</td></tr>
+    <tr><td>Registro familias</td><td>fetch → POST /api/registro. Validación cliente + servidor. Error inline</td></tr>
+    <tr><td>Login profesional</td><td>fetch → POST /api/login-profesional. Verifica rol. Guarda en cis_pro</td></tr>
+    <tr><td>Registro profesional</td><td>fetch → POST /api/registro-profesional. Requiere código de acceso</td></tr>
+    <tr><td>Carrusel motivacional</td><td>Auto-rotación cada 5s, dots de navegación, botones prev/next</td></tr>
+    <tr><td>Banner de cookies</td><td>localStorage con timestamp de 12 meses. Aceptar / Solo necesarias</td></tr>
+    <tr><td>Confirmar cita</td><td>Renderiza parámetros URL en tabla de resumen</td></tr>
+    <tr><td>Logout</td><td>Limpia sessionStorage (cis_usuario) y redirige a index</td></tr>
+</table>
+
+<h3>portal-app.js — Portal de Familias</h3>
+<ul>
+    <li>Carga datos desde <code>sessionStorage</code> (usuario real) o datos demo (<code>CIS_DATA</code>)</li>
+    <li>Renderiza perfil, avatar generado automáticamente, datos de contacto</li>
+    <li>Agenda de citas con pestañas Próximas / Historial y badges de estado</li>
+    <li>Diario de sesiones clínicas (ordenado descendente)</li>
+    <li>Facturación con total abonado calculado dinámicamente</li>
+    <li>Panel de resumen rápido (citas próximas, sesiones, total)</li>
+</ul>
+
+<h3>profesional-app.js — Portal Profesional</h3>
+<ul>
+    <li>Guardia de sesión: redirige si no hay <code>cis_pro</code> en sessionStorage</li>
+    <li>Perfil del profesional en sidebar con avatar generado</li>
+    <li>Formulario para crear perfil de paciente con fieldset de consentimiento</li>
+    <li>Listado de pacientes con estado de consentimiento (badge pendiente/vinculado/rechazado)</li>
+    <li>Cálculo de estadísticas: pacientes totales y consentimientos pendientes</li>
+    <li>Mensajes de error y éxito inline (sin alerts)</li>
+</ul>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+
+<h2>🔧 Backend — API REST (Node.js + Express)</h2>
+
+<div class="note">
+    <strong>📌 Entorno de desarrollo:</strong> La API corre en <code>http://localhost:3001</code> con XAMPP (MySQL) en local.
+    Para arrancarla: doble clic en <code>api/ejecutar_api.bat</code> (requiere <code>instalar_dependencias.bat</code> la primera vez).<br><br>
+    <strong>📂 Archivos estáticos:</strong> El propio servidor Express sirve el frontend en <code>http://localhost:3001/html/</code>, <code>/css/</code>, <code>/js/</code> e <code>/imagenes/</code>. No es necesario Apache/XAMPP para el frontend.
+</div>
+
+<h3>🛠️ Stack tecnológico</h3>
+<div class="tech-stack">
+    <div class="tech-item"><h5>Runtime</h5><strong>Node.js</strong><br><small>JavaScript en servidor</small></div>
+    <div class="tech-item"><h5>Framework</h5><strong>Express.js</strong><br><small>API REST</small></div>
+    <div class="tech-item"><h5>Base de Datos</h5><strong>MySQL 2</strong><br><small>mysql2/promise</small></div>
+    <div class="tech-item"><h5>Seguridad</h5><strong>bcryptjs</strong><br><small>Hash de contraseñas (salt 12)</small></div>
+    <div class="tech-item"><h5>CORS</h5><strong>cors</strong><br><small>Orígenes permitidos</small></div>
+    <div class="tech-item"><h5>Config</h5><strong>dotenv</strong><br><small>Variables de entorno</small></div>
+</div>
+
+<h3>🔗 Endpoints implementados</h3>
+<table>
+    <tr><th>Método</th><th>Endpoint</th><th>Rol requerido</th><th>Descripción</th></tr>
+    <tr><td>GET</td><td>/api/health</td><td>—</td><td>Estado de la API y conexión a BD</td></tr>
+    <tr><td>POST</td><td>/api/registro</td><td>—</td><td>Alta de cuenta de familia</td></tr>
+    <tr><td>POST</td><td>/api/login</td><td>—</td><td>Login de familia (rol: familia)</td></tr>
+    <tr><td>POST</td><td>/api/registro-profesional</td><td>Código acceso</td><td>Alta de profesional con código secreto</td></tr>
+    <tr><td>POST</td><td>/api/login-profesional</td><td>rol=profesional</td><td>Login exclusivo de profesionales</td></tr>
+    <tr><td>POST</td><td>/api/pacientes</td><td>rol=profesional</td><td>Crea perfil de niño + solicitud de consentimiento</td></tr>
+    <tr><td>GET</td><td>/api/pacientes</td><td>rol=profesional</td><td>Lista pacientes del profesional con estado de consentimiento</td></tr>
+    <tr><td>GET</td><td>/api/consentimientos/pendientes</td><td>rol=familia</td><td>Solicitudes de consentimiento pendientes para el tutor</td></tr>
+    <tr><td>POST</td><td>/api/consentimientos/:token/responder</td><td>rol=familia</td><td>Acepta o rechaza un consentimiento por token</td></tr>
+    <tr><td>GET</td><td>/api/mis-pacientes</td><td>rol=familia</td><td>Pacientes vinculados al tutor</td></tr>
+</table>
+
+<h3>🔐 Seguridad implementada</h3>
+<ul>
+    <li><strong>Contraseñas:</strong> Hasheadas con bcryptjs (salt rounds: 12)</li>
+    <li><strong>SQL Injection:</strong> Uso de prepared statements con <code>mysql2</code> parametrizado</li>
+    <li><strong>XSS:</strong> Función <code>esc()</code> en renderizado dinámico del portal</li>
+    <li><strong>CORS:</strong> Orígenes permitidos: localhost, 127.0.0.1, y file:// para desarrollo</li>
+    <li><strong>Mensajes genéricos en login:</strong> No se revela si el email existe o no</li>
+    <li><strong>Código de acceso para profesionales:</strong> Configurable en <code>.env</code> (CODIGO_PROFESIONAL)</li>
+    <li><strong>Validación de rol:</strong> Cada endpoint comprueba el rol del usuario antes de operar</li>
+    <li><strong>Tokens de consentimiento:</strong> 64 caracteres hex generados con <code>crypto.randomBytes(32)</code></li>
+</ul>
+
+<h3>📄 Variables de entorno (.env)</h3>
+<div class="code-block">
+PORT=3001<br>
+DB_HOST=localhost<br>
+DB_PORT=3306<br>
+DB_USER=root<br>
+DB_PASSWORD=<br>
+DB_NAME=cis_madrid<br>
+CORS_ORIGIN=http://localhost<br>
+CODIGO_PROFESIONAL=CIS-PRO-2026
+</div>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+
+<h2>🗄️ Base de Datos — cis_madrid.sql</h2>
+
+<h3>📊 Tablas de la base de datos</h3>
+<table>
+    <tr><th>Tabla</th><th>Propósito</th><th>Registros iniciales</th></tr>
+    <tr><td><strong>profesionales</strong></td><td>Perfiles del equipo clínico (psicóloga, terapeuta, logopeda)</td><td>3</td></tr>
+    <tr><td><strong>tarifas</strong></td><td>Precios de sesiones e informes</td><td>4 tarifas</td></tr>
+    <tr><td><strong>cursos_escuela_padres</strong></td><td>Cursos disponibles para familias</td><td>6 cursos</td></tr>
+    <tr><td><strong>citas</strong></td><td>Solicitudes de cita desde el formulario web</td><td>Sistema de reservas</td></tr>
+    <tr><td><strong>inscripciones_cursos</strong></td><td>Registro de familias en cursos</td><td>Gestión de participantes</td></tr>
+    <tr><td><strong>frases_motivacionales</strong></td><td>Frases del carrusel testimonial</td><td>5 frases</td></tr>
+    <tr><td><strong>usuarios</strong></td><td>Cuentas de familias y profesionales con contraseña hasheada</td><td>Nuevo – vacía</td></tr>
+    <tr><td><strong>pacientes</strong></td><td>Perfiles de niños/as creados por profesionales</td><td>Nuevo – vacía</td></tr>
+    <tr><td><strong>consentimientos</strong></td><td>Solicitudes de vinculación enviadas al tutor legal</td><td>Nuevo – vacía</td></tr>
+</table>
+
+<h3>👤 Tabla usuarios</h3>
+<div class="code-block">
+CREATE TABLE usuarios (<br>
+&nbsp;&nbsp;id            INT AUTO_INCREMENT PRIMARY KEY,<br>
+&nbsp;&nbsp;nombre        VARCHAR(100) NOT NULL,<br>
+&nbsp;&nbsp;email         VARCHAR(100) NOT NULL UNIQUE,<br>
+&nbsp;&nbsp;telefono      VARCHAR(20),<br>
+&nbsp;&nbsp;password_hash VARCHAR(255) NOT NULL,   -- bcrypt, salt 12<br>
+&nbsp;&nbsp;rol           ENUM('familia','profesional','admin') DEFAULT 'familia',<br>
+&nbsp;&nbsp;activo        TINYINT(1) DEFAULT 1,<br>
+&nbsp;&nbsp;created_at    DATETIME DEFAULT CURRENT_TIMESTAMP<br>
+);
+</div>
+
+<h3>👶 Tabla pacientes</h3>
+<div class="code-block">
+CREATE TABLE pacientes (<br>
+&nbsp;&nbsp;id                    INT AUTO_INCREMENT PRIMARY KEY,<br>
+&nbsp;&nbsp;nombre                VARCHAR(100) NOT NULL,<br>
+&nbsp;&nbsp;fecha_nacimiento      DATE,<br>
+&nbsp;&nbsp;genero                ENUM('masculino','femenino','otro'),<br>
+&nbsp;&nbsp;diagnostico_principal VARCHAR(200),<br>
+&nbsp;&nbsp;observaciones         TEXT,<br>
+&nbsp;&nbsp;profesional_id        INT NOT NULL,   -- FK → usuarios (rol=profesional)<br>
+&nbsp;&nbsp;tutor_usuario_id      INT,            -- FK → usuarios (rol=familia), NULL hasta aceptar<br>
+&nbsp;&nbsp;activo                TINYINT(1) DEFAULT 1,<br>
+&nbsp;&nbsp;created_at / updated_at DATETIME<br>
+);
+</div>
+
+<h3>✅ Tabla consentimientos</h3>
+<div class="code-block">
+CREATE TABLE consentimientos (<br>
+&nbsp;&nbsp;id               INT AUTO_INCREMENT PRIMARY KEY,<br>
+&nbsp;&nbsp;paciente_id      INT NOT NULL,        -- FK → pacientes<br>
+&nbsp;&nbsp;email_tutor      VARCHAR(100),        -- email del tutor legal<br>
+&nbsp;&nbsp;nombre_tutor     VARCHAR(100),<br>
+&nbsp;&nbsp;token            VARCHAR(64) UNIQUE,  -- 64 hex chars (crypto.randomBytes)<br>
+&nbsp;&nbsp;estado           ENUM('pendiente','aceptado','rechazado') DEFAULT 'pendiente',<br>
+&nbsp;&nbsp;fecha_envio      DATETIME DEFAULT CURRENT_TIMESTAMP,<br>
+&nbsp;&nbsp;fecha_respuesta  DATETIME<br>
+);
+</div>
+
+<h3>💶 Tarifas actuales</h3>
+<table>
+    <tr><th>Sesión</th><th>Precio</th><th>Duración</th></tr>
+    <tr><td>1ª Sesión (inicial)</td><td><strong>75 €</strong></td><td>25 min</td></tr>
+    <tr><td>2ª Sesión y posteriores</td><td>50 €</td><td>50 min</td></tr>
+    <tr><td>Pack 4 Sesiones</td><td>180 € <em>(ahorro)</em></td><td>50 min</td></tr>
+    <tr><td>Informe de Evaluación</td><td>120 €</td><td>—</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+
+<h2>🔄 Flujos de Usuario</h2>
+
+<h3>Flujo 1: Familia — Registro y primera cita</h3>
+<div class="code-block">
+1. Visita index.html → sección #servicios<br>
+2. Sin sesión → ve aviso "Acceso reservado a familias registradas"<br>
+3. Pulsa "Crear cuenta gratis" → registro.html<br>
+4. Rellena formulario → fetch POST /api/registro<br>
+5. Servidor crea usuario, hashea contraseña, devuelve datos<br>
+6. Frontend guarda sesión en sessionStorage (cis_usuario)<br>
+7. Redirige a portal.html → historial vacío (usuario nuevo)<br>
+8. Vuelve a index.html → formulario de cita ya relleno con sus datos
+</div>
+
+<h3>Flujo 2: Profesional — Crear perfil de paciente</h3>
+<div class="code-block">
+1. Va a login-profesional.html<br>
+2. Si no tiene cuenta → registro-profesional.html + código CIS-PRO-2026<br>
+3. fetch POST /api/registro-profesional → valida código<br>
+4. Sesión guardada en sessionStorage (cis_pro)<br>
+5. Redirige a profesional-portal.html<br>
+6. Rellena formulario: datos del niño + email del tutor legal<br>
+7. fetch POST /api/pacientes → crea paciente + token de consentimiento<br>
+8. Token guardado en tabla consentimientos (estado: pendiente)
+</div>
+
+<h3>Flujo 3: Familia — Aceptar consentimiento</h3>
+<div class="code-block">
+1. Tutor legal entra en portal.html con su cuenta<br>
+2. fetch GET /api/consentimientos/pendientes → busca por su email<br>
+3. Ve tarjeta: "El profesional X solicita vincular a [Nombre niño]"<br>
+4. Pulsa "Aceptar" → fetch POST /api/consentimientos/:token/responder<br>
+5. Servidor: actualiza estado a 'aceptado' + vincula tutor_usuario_id en pacientes<br>
+6. El niño aparece en "Mis pacientes vinculados"
+</div>
+
+<h3>Flujo 4: Administradora — Acceso al panel de gestión</h3>
+<div class="code-block">
+1. Va a login-admin.html<br>
+2. Introduce email y contraseña de la cuenta con rol='admin'<br>
+3. fetch POST /api/login-admin → verifica rol='admin'<br>
+4. Sesión guardada en sessionStorage (cis_admin)<br>
+5. Redirige a admin-portal.html<br>
+6. Carga automáticamente el Dashboard con 8 estadísticas globales<br>
+7. Navega entre: Usuarios • Pacientes • Citas • Consentimientos
+</div>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+
+<h2>🚀 Puesta en Marcha</h2>
+
+<h3>Requisitos previos</h3>
+<ul>
+    <li>XAMPP con MySQL activo</li>
+    <li>Node.js instalado en el sistema</li>
+    <li>Base de datos <code>cis_madrid</code> importada desde <code>cis_madrid.sql</code></li>
+</ul>
+
+<h3>Pasos de instalación</h3>
+<div class="code-block">
+1. Importar cis_madrid.sql en phpMyAdmin (BD: cis_madrid)<br>
+   → Si la BD ya existía, ejecutar el ALTER TABLE:<br>
+   ALTER TABLE usuarios MODIFY COLUMN rol ENUM('familia','profesional','admin') DEFAULT 'familia';<br>
+<br>
+2. Doble clic en: api/instalar_dependencias.bat<br>
+   → Instala: express, mysql2, bcryptjs, cors, dotenv<br>
+<br>
+3. Doble clic en: api/ejecutar_api.bat<br>
+   → Servidor corriendo en http://localhost:3001<br>
+<br>
+4. Verificar: abrir http://localhost:3001/api/health en el navegador<br>
+   → Respuesta: { "ok": true, "bd": "conectada" }
+</div>
+
+<h3>Crear cuenta de administradora (primera vez)</h3>
+<div class="info">
+    <strong>🔑 Credenciales actuales del panel admin:</strong><br>
+    URL: <code>http://localhost:3001/html/login-admin.html</code><br>
+    Email: <code>a.lafuente.defrutos@gmail.com</code><br>
+    Contraseña: <code>CIS2026admin</code><br><br>
+    Ver también: <code>acceso_admin.txt</code> en la raíz del proyecto.
+</div>
+<div class="code-block">
+-- Si hay que RECREAR o RESETEAR la cuenta admin:<br>
+<br>
+1. Abrir PowerShell en la carpeta api/<br>
+2. Ejecutar: node crear_admin.js<br>
+   → El script genera el hash, borra el admin anterior e inserta la cuenta nueva<br>
+   → Verifica la contraseña directamente desde la BD y confirma el resultado<br>
+<br>
+-- Para CAMBIAR la contraseña: editar la constante ADMIN_PASSWORD en crear_admin.js<br>
+-- Credenciales de respaldo en: acceso_admin.txt (raíz del proyecto)
+</div>
+
+<h3>Archivos .bat y utilidades</h3>
+<table>
+    <tr><th>Archivo</th><th>Uso</th><th>Frecuencia</th></tr>
+    <tr><td>instalar_dependencias.bat</td><td>Instala paquetes npm</td><td>Solo la primera vez</td></tr>
+    <tr><td>ejecutar_api.bat</td><td>Arranca el servidor Node.js (puerto 3001)</td><td>Cada vez que se use la API</td></tr>
+    <tr><td>crear_admin.js</td><td>Crea o resetea la cuenta admin con hash bcrypt correcto</td><td>Solo al crear o cambiar contraseña admin</td></tr>
+    <tr><td>acceso_admin.txt</td><td>Referencia de URL, email y contraseña del panel admin</td><td>Consulta rápida</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>✅ Estado Actual del Proyecto</h2>
+
+<table>
+    <tr><th>Componente</th><th>Estado</th><th>Detalle</th></tr>
+    <tr><td>Frontend HTML</td><td class="badge-done">✅ Completo</td><td>22 páginas HTML, responsive</td></tr>
+    <tr><td>CSS / Estilos</td><td class="badge-done">✅ Completo</td><td>styles.css + estilos_portal.css (panel admin incluido)</td></tr>
+    <tr><td>JavaScript principal</td><td class="badge-done">✅ Completo</td><td>main.js: formularios, login familia, profesional y admin</td></tr>
+    <tr><td>Portal familias</td><td class="badge-done">✅ Completo</td><td>portal-app.js: citas, sesiones, facturación, consentimientos</td></tr>
+    <tr><td>Portal profesional</td><td class="badge-done">✅ Completo</td><td>profesional-app.js: crear pacientes, listar, estados</td></tr>
+    <tr><td>Panel administración</td><td class="badge-done">✅ Completo</td><td>admin-app.js: dashboard, usuarios, pacientes, citas, consentimientos</td></tr>
+    <tr><td>API Backend</td><td class="badge-done">✅ Completo</td><td>server.js: 18 endpoints (10 usuarios + 8 admin)</td></tr>
+    <tr><td>Base de Datos</td><td class="badge-done">✅ Completo</td><td>9 tablas, rol admin incluido en ENUM</td></tr>
+    <tr><td>Seguridad</td><td class="badge-done">✅ Implementada</td><td>bcrypt, prepared statements, CORS, rol-check, tokens hex, middleware requireAdmin</td></tr>
+    <tr><td>Archivos de utilidad</td><td class="badge-done">✅ Completo</td><td>2 .bat + crear_admin.js + acceso_admin.txt</td></tr>
+    <tr><td>Archivos estáticos vía API</td><td class="badge-done">✅ Completo</td><td>server.js sirve /html, /css, /js, /imagenes en puerto 3001</td></tr>
+    <tr><td>Envío de emails</td><td class="badge-done">✅ Completo</td><td>Nodemailer + Gmail SMTP · Notificación de consentimiento al tutor legal</td></tr>
+</table>
+
+<hr class="doc-hr">
+
+<p class="doc-footer">
+    Documento actualizado el 6 de abril de 2026 (v2.1)<br>
+    Centro de Intervención Psicoeducativa – CIS Madrid<br>
+    Desarrollado por <strong>Ana Sara Lafuente</strong><br>
+    Base de datos: MySQL (cis_madrid.sql – versión 2.0)<br>
+    API: Node.js + Express · 18 endpoints · Puerto 3001 · Archivos estáticos incluidos
+</p>
+
+</body>
+</html>

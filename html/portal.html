@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal de Familias – CIS Madrid</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/estilos_portal.css" />
+</head>
+<body id="portalApp">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="portal-header">
+    <nav class="container">
+      <a href="index.html" class="logo">
+        <img class="logo-svg" src="../imagenes/logo.svg" alt="Logotipo CIS" />
+        <div class="logo-text"><h1>CIS</h1><span>Portal de Familias</span></div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Web Principal</a></li>
+        <li><button class="btn btn-outline btn-logout" id="logoutBtn">🚶 Cerrar sesión</button></li>
+      </ul>
+      <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    </nav>
+  </header>
+
+  <!-- ===================== PORTAL LAYOUT ===================== -->
+  <div class="portal-layout">
+    <div class="portal-container">
+
+      <!-- SIDEBAR PERFIL -->
+      <aside class="profile-card">
+        <div class="profile-avatar">
+          <img id="portalAvatar" src="" alt="Avatar usuario" />
+        </div>
+        <h2 class="profile-name" id="portalNombre">Cargando...</h2>
+        <p class="profile-role" id="portalRol"></p>
+
+        <div class="patient-info">
+          <h4>Datos del Paciente <span class="icon-edit" title="Editar datos">⚙️</span></h4>
+          <div class="patient-item" id="portalPaciente"></div>
+          <div class="patient-item" id="portalRef"></div>
+        </div>
+
+        <div class="contact-info">
+          <div class="contact-item" id="portalTel"></div>
+          <div class="contact-item" id="portalEmail"></div>
+        </div>
+
+        <!-- PANEL RESUMEN RÁPIDO -->
+        <div class="resumen-rapido">
+          <div class="resumen-item">
+            <span class="resumen-value" id="resumenProximas">–</span>
+            <span class="resumen-label">Citas próximas</span>
+          </div>
+          <div class="resumen-item">
+            <span class="resumen-value" id="resumenSesiones">–</span>
+            <span class="resumen-label">Sesiones registradas</span>
+          </div>
+          <div class="resumen-item resumen-item--wide">
+            <span class="resumen-value resumen-value--sm" id="resumenTotal">–</span>
+            <span class="resumen-label">Total abonado</span>
+          </div>
+        </div>
+
+        <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+      </aside>
+
+      <!-- DASHBOARD PRINCIPAL -->
+      <main class="dashboard-content">
+
+        <!-- SECCIÓN: AGENDA DE CITAS -->
+        <section class="dash-panel" aria-labelledby="citasHeading">
+          <div class="dash-header">
+            <h3 id="citasHeading">
+              Agenda de Citas
+              <span class="count-badge" id="citasProximasBadge"></span>
+            </h3>
+            <a href="index.html#servicios" class="btn btn-primary btn-compact">+ Solicitar nueva</a>
+          </div>
+
+          <!-- Pestañas: Próximas / Pasadas -->
+          <div class="apt-tabs" role="tablist">
+            <button class="apt-tab active" id="tabProximas" role="tab" aria-selected="true">Próximas</button>
+            <button class="apt-tab" id="tabPasadas" role="tab" aria-selected="false">Historial</button>
+          </div>
+
+          <div class="appointment-list" id="appointmentList" aria-live="polite">
+            <!-- Citas renderizadas por portal-app.js -->
+          </div>
+        </section>
+
+        <!-- SECCIÓN: DIARIO DE SESIONES -->
+        <section class="dash-panel" aria-labelledby="sesionesHeading">
+          <div class="dash-header">
+            <h3 id="sesionesHeading">Diario de Sesiones</h3>
+          </div>
+          <div id="sessionList" aria-live="polite">
+            <!-- Sesiones renderizadas por portal-app.js -->
+          </div>
+        </section>
+
+        <!-- SECCIÓN: FACTURACIÓN -->
+        <section class="dash-panel" aria-labelledby="facturacionHeading">
+          <div class="dash-header">
+            <h3 id="facturacionHeading">Facturación y Abonos</h3>
+            <button class="btn btn-outline btn-sm" id="btnExtracto">Generar extracto</button>
+          </div>
+          <div class="billing-list" id="billingList" aria-live="polite">
+            <!-- Facturación renderizada por portal-app.js -->
+          </div>
+          <p class="billing-total" id="billingTotal"></p>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="../js/portal-data.js"></script>
+  <script src="../js/portal-app.js"></script>
+  <script defer src="../js/main.js"></script>
+</body>
+</html>

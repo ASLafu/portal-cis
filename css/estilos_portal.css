@@ -1,0 +1,933 @@
+/* ========================================================
+   PORTAL DE FAMILIAS (ÁREA PRIVADA)
+   ======================================================== */
+
+/* =========================================
+   CONFIRMAR CITA
+========================================= */
+.confirm-wrap { max-width: 680px; margin: 4rem auto; background: #ffffff; border-radius: 20px; padding: 3rem; box-shadow: var(--shadow); }
+.confirm-header { text-align: center; margin-bottom: 2rem; }
+.check-circle { width: 80px; height: 80px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2.5rem; }
+.data-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+.data-table tr { border-bottom: 1px solid #eeeeee; }
+.data-table td { padding: .75rem .5rem; font-size: .92rem; }
+.data-table td:first-child { font-weight: 600; color: var(--primary-dk); width: 40%; }
+.data-table td:last-child { color: var(--text-light); }
+.btn-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-row .btn { flex: 1; text-align: center; }
+.notice { background: rgba(74,144,164,.08); border-left: 4px solid var(--primary); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; font-size: .9rem; color: var(--text-light); }
+
+/* =========================================
+   LOGIN / REGISTRO
+========================================= */
+.login-page {
+  background: var(--soft);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.login-box {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 450px;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.login-box h2 {
+  font-family: 'Lora', serif;
+  color: var(--primary-dk);
+  margin-bottom: .5rem;
+}
+
+.login-box p {
+  color: var(--text-light);
+  font-size: .9rem;
+  margin-bottom: 2rem;
+}
+
+.login-form .form-group {
+  text-align: left;
+  margin-bottom: 1.25rem;
+}
+
+.login-links {
+  margin-top: 1.5rem;
+  font-size: .85rem;
+  color: var(--text-light);
+}
+
+.login-links a {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* =========================================
+   DASHBOARD / PORTAL LAYOUT
+========================================= */
+.portal-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 80px);
+  background: var(--soft);
+  padding: 2rem 1rem;
+}
+
+.portal-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* =========================================
+   SIDEBAR PERFIL
+========================================= */
+.profile-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow);
+  text-align: center;
+  position: sticky;
+  top: 100px;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--soft);
+  margin: 0 auto 1rem;
+  overflow: hidden;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+  position: relative;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-avatar::after {
+  content: "📷";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  cursor: pointer;
+  color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0,0,0,.15);
+}
+
+.profile-name {
+  font-family: 'Lora', serif;
+  font-size: 1.4rem;
+  color: var(--primary-dk);
+  margin-bottom: .25rem;
+}
+
+.profile-role {
+  color: var(--text-light);
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+}
+
+.patient-info {
+  background: var(--soft);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.patient-info h4 {
+  font-size: .95rem;
+  color: var(--primary-dk);
+  margin-bottom: .5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.patient-item {
+  font-size: .85rem;
+  color: var(--text-light);
+  margin-bottom: .3rem;
+  display: flex;
+  gap: .5rem;
+}
+
+.patient-item i { width: 16px; color: var(--primary); }
+
+.logout-btn {
+  display: block;
+  width: 100%;
+  padding: .75rem;
+  margin-top: 1rem;
+  background: transparent;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .9rem;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #ffebee;
+}
+
+/* =========================================
+   DASHBOARD PRINCIPAL
+========================================= */
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dash-panel {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--soft);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.dash-header h3 {
+  font-family: 'Lora', serif;
+  color: var(--primary-dk);
+  font-size: 1.3rem;
+}
+
+/* =========================================
+   LISTADO DE CITAS
+========================================= */
+.appointment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.apt-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #eeeeee;
+  background: #fafafa;
+}
+
+.apt-card.next {
+  background: #ffffff;
+  border-color: var(--accent);
+  border-left: 4px solid var(--accent);
+}
+
+.apt-date {
+  text-align: center;
+  min-width: 70px;
+  padding: .5rem;
+  background: var(--soft);
+  border-radius: 8px;
+  color: var(--primary-dk);
+  flex-shrink: 0;
+}
+
+.apt-date .day { display: block; font-size: 1.6rem; font-weight: 700; line-height: 1; }
+.apt-date .month { display: block; font-size: .8rem; text-transform: uppercase; font-weight: 600; margin-top: .2rem; }
+
+.apt-details { flex: 1; display: flex; flex-direction: column; gap: .25rem; min-width: 0; }
+.apt-details h4 { font-size: 1.05rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apt-details p { font-size: .85rem; color: var(--text-light); }
+.apt-status { font-size: .75rem; font-weight: 600; padding: .2rem .6rem; border-radius: 20px; background: #e0f2f1; color: #00796b; white-space: nowrap; }
+.apt-status.pending { background: #fff3e0; color: #e65100; }
+
+/* =========================================
+   DIARIO DE SESIONES
+========================================= */
+.session-card {
+  border-left: 3px solid var(--primary);
+  padding-left: 1.25rem;
+  position: relative;
+  margin-bottom: 1.8rem;
+}
+
+.session-card::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 3px solid #ffffff;
+}
+
+.session-date { font-size: .8rem; color: var(--text-light); font-weight: 600; margin-bottom: .5rem;}
+.session-content { background: var(--soft); padding: 1rem; border-radius: 12px; font-size: .9rem; line-height: 1.6; }
+.session-content .prof { font-style: italic; color: var(--primary-dk); margin-top: .5rem; font-size: .8rem; text-align: right;}
+
+/* =========================================
+   FACTURACIÓN Y PAGOS
+========================================= */
+.billing-list { display: flex; flex-direction: column; }
+.billing-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 1rem;
+}
+
+.billing-item:last-child { border-bottom: none; }
+.b-info { flex: 1; min-width: 0; }
+.b-info h5 { margin-bottom: .2rem; }
+.b-info p { font-size: .8rem; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.b-amount { font-weight: 700; font-size: 1.1rem; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+.b-amount.paid { color: #2e7d32; }
+.b-amount.unpaid { color: #d32f2f; }
+
+/* =========================================
+   PORTAL HEADER
+========================================= */
+.portal-header { box-shadow: 0 2px 10px rgba(0,0,0,.05) !important; z-index: 100 !important; }
+.portal-header .logo-text h1 { font-size: 1.6rem; }
+.portal-header .logo-text span { font-size: .75rem; }
+
+/* =========================================
+   PORTAL BOTONES
+========================================= */
+.btn-logout { padding: .3rem .8rem; border-radius: 20px; font-size: .8rem; border-color: #d32f2f !important; color: #d32f2f !important; }
+.btn-compact { padding: .4rem 1rem; }
+.btn-sm { padding: .3rem .8rem; font-size: .8rem; }
+
+/* =========================================
+   CONTACT INFO DEL PERFIL
+========================================= */
+.contact-info { text-align: left; font-size: .85rem; color: var(--text-light); margin-bottom: 1rem; padding-left: .5rem; }
+.contact-item + .contact-item { margin-top: .4rem; }
+
+/* =========================================
+   CITAS PASADAS
+========================================= */
+.apt-date--past { background: #f5f5f5 !important; color: #999999 !important; }
+.apt-title--past { color: #666666; }
+.apt-status--done { background: #f5f5f5; color: #777777; border: 1px solid #dddddd; }
+
+/* =========================================
+   ENLACES Y BADGES
+========================================= */
+.link-primary { font-size: .85rem; color: var(--primary); font-weight: 600; }
+.badge-paid { font-size: .65rem; padding: .2rem .4rem; background: #e8f5e9; color: #2e7d32; border-radius: 8px; margin-left: .5rem; font-weight: 700; }
+.icon-edit { font-size: 1.1rem; cursor: pointer; }
+.link-muted { color: var(--text-light); text-decoration: underline; }
+
+/* =========================================
+   LOGIN BOX ANCHO (REGISTRO)
+========================================= */
+.login-box--lg { max-width: 550px; }
+
+/* =========================================
+   LOGIN LOGO
+========================================= */
+.login-logo { margin-bottom: 1.5rem; }
+
+/* =========================================
+   BOTÓN SUBMIT LOGIN/REGISTRO
+========================================= */
+.login-form .btn-primary { width: 100%; }
+
+/* =========================================
+   PESTAÑAS DE CITAS
+========================================= */
+.apt-tabs {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--soft);
+  padding-bottom: 0;
+}
+
+.apt-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: .5rem 1.1rem;
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+}
+
+.apt-tab.active {
+  color: var(--primary-dk);
+  border-bottom-color: var(--primary);
+}
+
+.apt-tab:hover:not(.active) {
+  color: var(--text);
+  background: var(--soft);
+}
+
+/* =========================================
+   PANEL DE RESUMEN RÁPIDO (SIDEBAR)
+========================================= */
+.resumen-rapido {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+  margin: 1.25rem 0;
+  background: var(--soft);
+  border-radius: 12px;
+  padding: .9rem .75rem;
+}
+
+.resumen-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+}
+
+.resumen-item--wide {
+  grid-column: 1 / -1;
+}
+
+.resumen-value {
+  font-family: 'Lora', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-dk);
+  line-height: 1;
+}
+
+.resumen-value--sm {
+  font-size: 1.3rem;
+}
+
+.resumen-label {
+  font-size: .72rem;
+  color: var(--text-light);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+/* =========================================
+   BADGE CONTADOR DE CITAS PRÓXIMAS
+========================================= */
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: #ffffff;
+  font-family: 'Lexend', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  padding: 0 .4rem;
+  margin-left: .5rem;
+  vertical-align: middle;
+}
+
+/* =========================================
+   BADGE FACTURA PENDIENTE
+========================================= */
+.badge-pending {
+  font-size: .65rem;
+  padding: .2rem .4rem;
+  background: #fff3e0;
+  color: #e65100;
+  border-radius: 8px;
+  margin-left: .5rem;
+  font-weight: 700;
+}
+
+/* =========================================
+   TOTAL FACTURACIÓN
+========================================= */
+.billing-total {
+  margin-top: 1rem;
+  text-align: right;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--primary-dk);
+  padding-top: .75rem;
+  border-top: 2px solid var(--soft);
+}
+
+/* =========================================
+   ESTADO CANCELADA
+========================================= */
+.apt-status--cancelled {
+  background: #fce4ec;
+  color: #ad1457;
+  border: 1px solid #f8bbd0;
+}
+
+/* =========================================
+   TÍTULO DE SESIÓN
+========================================= */
+.session-title {
+  display: block;
+  color: var(--primary-dk);
+  margin-bottom: .4rem;
+  font-size: .92rem;
+}
+
+/* =========================================
+   MENSAJE VACÍO
+========================================= */
+.portal-empty {
+  text-align: center;
+  color: var(--text-light);
+  font-size: .9rem;
+  padding: 1.5rem 0;
+}
+
+/* =========================================
+   PORTAL PROFESIONAL — TARJETAS PACIENTE
+========================================= */
+.paciente-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--soft);
+  border-radius: 12px;
+  margin-bottom: .75rem;
+  background: #fff;
+}
+
+.paciente-avatar {
+  font-size: 2.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.paciente-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.paciente-info h4 {
+  font-family: 'Lora', serif;
+  color: var(--primary-dk);
+  margin: 0 0 .2rem;
+  font-size: 1rem;
+}
+
+.paciente-info p {
+  font-size: .82rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.paciente-tutor {
+  font-size: .8rem;
+  margin-top: .15rem !important;
+}
+
+.paciente-tutor.muted { color: var(--text-light); font-style: italic; }
+
+.paciente-estado {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* =========================================
+   FORMULARIO PACIENTE — FIELDSET CONSENT
+========================================= */
+.consent-fieldset {
+  border: 2px dashed var(--primary);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+
+.consent-fieldset legend {
+  font-weight: 600;
+  color: var(--primary-dk);
+  padding: 0 .5rem;
+  font-size: .92rem;
+}
+
+.consent-note {
+  font-size: .82rem;
+  color: var(--text-light);
+  background: var(--soft);
+  padding: .6rem .85rem;
+  border-radius: 8px;
+  margin-top: .75rem;
+  line-height: 1.6;
+}
+
+/* =========================================
+   BADGES CONSENTIMIENTO
+========================================= */
+.badge-consent-pending {
+  background: #fff8e1;
+  color: #f57f17;
+  border: 1px solid #ffe082;
+}
+
+.badge-consent-ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.badge-consent-rejected {
+  background: #fce4ec;
+  color: #ad1457;
+  border: 1px solid #f8bbd0;
+}
+
+/* =========================================
+   REGISTRO PROFESIONAL — CÓDIGO ACCESO
+========================================= */
+.codigo-acceso-group input {
+  font-family: 'Courier New', monospace;
+  letter-spacing: .08em;
+  font-weight: 600;
+}
+
+.form-hint {
+  display: block;
+  font-size: .78rem;
+  color: var(--text-light);
+  margin-top: .3rem;
+}
+
+/* =========================================
+   PORTAL FAMILIAS — SECCIÓN CONSENTIMIENTOS
+========================================= */
+.consent-request-card {
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: #f0f9ff;
+}
+
+.consent-request-card h4 {
+  font-family: 'Lora', serif;
+  color: var(--primary-dk);
+  margin: 0 0 .4rem;
+}
+
+.consent-request-card p {
+  font-size: .88rem;
+  color: var(--text-light);
+  margin: 0 0 1rem;
+}
+
+.consent-request-btns {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.btn-consent-ok {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  padding: .55rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .88rem;
+  font-weight: 600;
+}
+
+.btn-consent-reject {
+  background: #fff;
+  color: #c62828;
+  border: 2px solid #ef9a9a;
+  padding: .55rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .88rem;
+  font-weight: 600;
+}
+
+/* Paciente vinculado en el portal de familias */
+.paciente-vinculado-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #a5d6a7;
+  border-radius: 12px;
+  background: #f9fffe;
+  margin-bottom: .75rem;
+}
+
+.paciente-vinculado-card .pac-emoji { font-size: 2rem; }
+
+.paciente-vinculado-card h4 {
+  font-family: 'Lora', serif;
+  color: var(--primary-dk);
+  margin: 0 0 .2rem;
+}
+
+.paciente-vinculado-card p {
+  font-size: .82rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* =========================================
+   RESPONSIVE PORTAL — TABLET (≤ 850px)
+========================================= */
+@media (max-width: 850px) {
+  .portal-container {
+    grid-template-columns: 1fr;
+  }
+  .profile-card {
+    position: static;
+  }
+  .apt-card {
+    flex-wrap: wrap;
+    gap: .75rem;
+  }
+}
+
+/* =========================================
+   RESPONSIVE PORTAL — MÓVIL (≤ 600px)
+========================================= */
+@media (max-width: 600px) {
+  .portal-layout { padding: 1.25rem .75rem; }
+  .dash-panel { padding: 1.25rem 1rem; }
+  .confirm-wrap { padding: 1.5rem 1.25rem; margin: 2rem auto; }
+  .login-box { padding: 2rem 1.25rem; }
+  .apt-details h4 { font-size: .95rem; white-space: normal; }
+  .billing-item { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  .b-amount { font-size: 1rem; }
+  .btn-row { flex-direction: column; }
+  .btn-row .btn { width: 100%; }
+}
+
+/* =========================================
+   RESPONSIVE LOGIN — MUY PEQUEÑO (≤ 400px)
+========================================= */
+@media (max-width: 400px) {
+  .login-box { padding: 1.5rem 1rem; }
+  .login-box--lg { padding: 1.5rem 1rem; }
+}
+
+/* =========================================
+   PANEL ADMINISTRACIÓN — GENERAL
+========================================= */
+.hidden { display: none !important; }
+
+.admin-header { border-bottom: 3px solid #c0392b !important; }
+.admin-header .logo-text span { color: #c0392b !important; }
+
+/* =========================================
+   SIDEBAR ADMIN — MENÚ NAV
+========================================= */
+.admin-sidebar { text-align: center; }
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  margin: 1.25rem 0;
+  text-align: left;
+}
+
+.admin-nav-btn {
+  background: none;
+  border: none;
+  border-radius: 10px;
+  padding: .65rem 1rem;
+  font-family: inherit;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  text-align: left;
+}
+
+.admin-nav-btn:hover {
+  background: var(--soft);
+  color: var(--text);
+}
+
+.admin-nav-btn.active {
+  background: #ffebee;
+  color: #c0392b;
+}
+
+/* =========================================
+   PANEL ADMINISTRACIÓN — SECCIONES
+========================================= */
+.admin-section {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+/* =========================================
+   STATS GRID
+========================================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.stat-card {
+  background: var(--soft);
+  border-radius: 16px;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+  border: 1px solid transparent;
+}
+
+.stat-card--accent { background: #e3f2fd; border-color: #90caf9; }
+.stat-card--warn   { background: #fff8e1; border-color: #ffe082; }
+.stat-card--ok     { background: #e8f5e9; border-color: #a5d6a7; }
+
+.stat-val {
+  font-family: 'Lora', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--primary-dk);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: .75rem;
+  color: var(--text-light);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+/* =========================================
+   TABLA ADMIN
+========================================= */
+.admin-table-wrap {
+  overflow-x: auto;
+  margin-top: .5rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85rem;
+}
+
+.admin-table th {
+  background: var(--primary-dk);
+  color: #fff;
+  padding: .75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: .7rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td { background: #fafafa; }
+
+.admin-table .muted { color: var(--text-light); font-style: italic; }
+
+/* Botón toggle activo/bloqueado */
+.btn-admin-toggle {
+  background: var(--soft);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: .35rem .75rem;
+  font-size: .8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.btn-admin-toggle:hover { background: #fff3e0; }
+
+/* Select estado cita */
+.select-estado-cita {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: .3rem .6rem;
+  font-size: .82rem;
+  font-family: inherit;
+  cursor: pointer;
+  background: #fff;
+}
+
+/* Badges de rol */
+.role-badge {
+  display: inline-block;
+  padding: .2rem .6rem;
+  border-radius: 20px;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.role-familia      { background: #e3f2fd; color: #1565c0; }
+.role-profesional  { background: #e8f5e9; color: #2e7d32; }
+
+/* =========================================
+   RESPONSIVE ADMIN — TABLET
+========================================= */
+@media (max-width: 850px) {
+  .admin-section { padding: 1.25rem 1rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stat-val { font-size: 1.8rem; }
+}

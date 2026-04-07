@@ -1,0 +1,219 @@
+╔══════════════════════════════════════════════════════════════╗
+║         CIS MADRID — GUÍA DE INSTALACIÓN Y DEMO             ║
+║         Centro de Intervención Psicoeducativa                ║
+╚══════════════════════════════════════════════════════════════╝
+
+Desarrollado por Ana Sara Lafuente
+Fecha: Abril 2026
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ REQUISITOS PREVIOS (instalar una sola vez)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 1. XAMPP (incluye Apache + MySQL)
+    Descarga: https://www.apachefriends.org/es/index.html
+    → Instalar con opciones por defecto
+
+ 2. Node.js
+    Descarga: https://nodejs.org  (versión LTS)
+    → Instalar con opciones por defecto
+
+ Una vez instalados, continúa con los pasos de abajo.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PASO 1 — ARRANCAR XAMPP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 1. Abre el Panel de Control de XAMPP
+ 2. Pulsa START en "Apache"
+ 3. Pulsa START en "MySQL"
+    → Ambos deben aparecer en VERDE
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PASO 2 — IMPORTAR LA BASE DE DATOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 1. Abre el navegador y ve a:  http://localhost/phpmyadmin
+ 2. Haz clic en "Nueva" (panel izquierdo)
+ 3. Nombre de la base de datos: cis_madrid
+    Cotejamiento: utf8mb4_spanish_ci
+    → Pulsa "Crear"
+ 4. Con "cis_madrid" seleccionada, ve a la pestaña "Importar"
+ 5. Haz clic en "Seleccionar archivo"
+    → Busca y selecciona:  C:\Proyectos\cis_madrid.sql
+ 6. Pulsa "Importar" (botón al final de la página)
+    → Debe aparecer un mensaje verde de éxito
+
+ 7. CREAR EL USUARIO ADMINISTRADOR:
+    Sigue en phpMyAdmin con "cis_madrid" seleccionada.
+    Ve a la pestaña "SQL" y pega este texto:
+
+    DELETE FROM usuarios WHERE rol = 'admin';
+    INSERT INTO usuarios (nombre, email, telefono, password_hash, rol, activo)
+    VALUES (
+      'Ana Sara Lafuente',
+      'a.lafuente.defrutos@gmail.com',
+      '+34605426298',
+      '$2a$12$rj8fm8gzY0s2bOH3bPY./u6q5YtXsI0jAPWghGz1RuhoPY876gk5G',
+      'admin',
+      1
+    );
+
+    → Pulsa "Continuar" o "Ejecutar"
+    → Debe aparecer mensaje verde de éxito
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PASO 3 — INSTALAR DEPENDENCIAS (solo la primera vez)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ Doble clic en el archivo:
+    C:\Proyectos\api\instalar_dependencias.bat
+
+ → Se abrirá una ventana negra y se instalará todo automáticamente.
+ → Espera a que termine y se cierre.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PASO 4 — ARRANCAR EL SERVIDOR DE LA API
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ Doble clic en el archivo:
+    C:\Proyectos\api\ejecutar_api.bat
+
+ → Se abrirá una ventana negra. Debes ver:
+
+    ╔══════════════════════════════════════════╗
+    ║   CIS API – Centro de Intervención       ║
+    ║   http://localhost:3001                  ║
+    ╚══════════════════════════════════════════╝
+    ✅  Conectado a MySQL → cis_madrid
+    ✅  SMTP Gmail conectado → cismadrid23@gmail.com
+
+ ¡IMPORTANTE! No cierres esta ventana mientras haces la demo.
+
+ Verificación rápida: abre el navegador y ve a:
+    http://localhost:3001/api/health
+    → Debe mostrar: { "ok": true, "bd": "conectada" }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PASO 5 — DEMO: RECORRIDO POR LAS PÁGINAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ Abre el navegador y ve a:
+    http://localhost:3001/html/index.html
+
+
+ ── WEB PÚBLICA ──────────────────────────────────────────────
+
+ □ Página principal (index.html)
+   URL: http://localhost:3001/html/index.html
+   Qué mostrar:
+   - Hero con imagen y descripción del centro
+   - Sección de intervenciones (TDAH, TEA, Dislexia...)
+   - Equipo de profesionales con sus perfiles
+   - Tarifas de las sesiones
+   - Formulario de solicitud de cita (requiere estar registrado)
+   - Carrusel de frases motivacionales
+   - Banner de cookies
+
+ □ Páginas de trastornos
+   Ejemplos:
+   http://localhost:3001/html/tdah.html
+   http://localhost:3001/html/tea.html
+   http://localhost:3001/html/dislexia.html
+
+
+ ── PORTAL DE FAMILIAS ───────────────────────────────────────
+
+ □ Registrar una cuenta de familia
+   URL: http://localhost:3001/html/registro.html
+   Rellena: nombre, teléfono, email, contraseña (mín. 8 caracteres)
+   → Redirige automáticamente al portal privado
+
+ □ Portal de familias
+   URL: http://localhost:3001/html/portal.html
+   Qué mostrar:
+   - Panel con datos del usuario
+   - Historial de citas
+   - Diario de sesiones clínicas
+   - Facturación
+   - Solicitudes de consentimiento pendientes
+
+ □ Cerrar sesión y volver a entrar
+   URL: http://localhost:3001/html/login.html
+
+
+ ── PORTAL PROFESIONAL ───────────────────────────────────────
+
+ □ Registrar cuenta de profesional
+   URL: http://localhost:3001/html/registro-profesional.html
+   Código de acceso: CIS-PRO-2026
+
+ □ Portal profesional
+   URL: http://localhost:3001/html/profesional-portal.html
+   Qué mostrar:
+   - Crear perfil de un niño (nombre, diagnóstico, email del tutor)
+   - Al crear → se envía un email automático al tutor
+   - Lista de pacientes con estado de consentimiento
+
+
+ ── PANEL DE ADMINISTRACIÓN ──────────────────────────────────
+
+ □ Login de administradora
+   URL:        http://localhost:3001/html/login-admin.html
+   Email:      a.lafuente.defrutos@gmail.com
+   Contraseña: CIS2026admin
+
+ □ Panel admin
+   URL: http://localhost:3001/html/admin-portal.html
+   Qué mostrar:
+   - Dashboard: contadores globales (usuarios, pacientes, citas...)
+   - Gestión de usuarios: activar / desactivar cuentas
+   - Gestión de pacientes: ver todos los perfiles del centro
+   - Gestión de citas: cambiar estado (pendiente/confirmada/cancelada)
+   - Gestión de consentimientos: ver estado global
+
+
+ ── EMAIL AUTOMÁTICO (demostración) ──────────────────────────
+
+ □ Cómo probar el email:
+   1. Inicia sesión como profesional
+   2. Crea un paciente con tu email personal como "email del tutor"
+   3. Revisa tu bandeja de entrada
+   → Recibirás un email de cismadrid23@gmail.com con el aviso
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ CREDENCIALES DE ACCESO (resumen rápido)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ ADMINISTRADORA:
+   Email:      a.lafuente.defrutos@gmail.com
+   Contraseña: CIS2026admin
+   URL:        http://localhost:3001/html/login-admin.html
+
+ PROFESIONALES (código de registro):
+   Código:     CIS-PRO-2026
+   URL:        http://localhost:3001/html/registro-profesional.html
+
+ FAMILIAS:
+   Registro libre (sin código)
+   URL:        http://localhost:3001/html/registro.html
+
+ EMAIL DEL SISTEMA:
+   cismadrid23@gmail.com
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ANTES DE FINALIZAR LA DEMO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 1. Cierra la ventana negra del servidor (o pulsa Ctrl+C en ella)
+ 2. En XAMPP, pulsa STOP en "MySQL" y en "Apache"
+
+════════════════════════════════════════════════════════════════

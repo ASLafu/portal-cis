@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Profesional – CIS Madrid</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/estilos_portal.css" />
+</head>
+<body id="profesionalApp">
+
+  <!-- HEADER -->
+  <header class="portal-header">
+    <nav class="container">
+      <a href="index.html" class="logo">
+        <img class="logo-svg" src="../imagenes/logo.svg" alt="Logotipo CIS" />
+        <div class="logo-text"><h1>CIS</h1><span>Área Profesional</span></div>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Web Principal</a></li>
+        <li><a href="login-profesional.html" class="btn btn-outline btn-logout" id="logoutProBtn">🚶 Cerrar sesión</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="portal-layout">
+    <div class="portal-container">
+
+      <!-- SIDEBAR -->
+      <aside class="profile-card">
+        <div class="profile-avatar">
+          <img id="proAvatar" src="" alt="Avatar profesional" />
+        </div>
+        <h2 class="profile-name" id="proNombre">Cargando...</h2>
+        <p class="profile-role">Profesional CIS</p>
+        <div class="contact-info">
+          <div class="contact-item" id="proTel"></div>
+          <div class="contact-item" id="proEmail"></div>
+        </div>
+        <div class="resumen-rapido">
+          <div class="resumen-item resumen-item--wide">
+            <span class="resumen-value" id="proPacientesTotal">–</span>
+            <span class="resumen-label">Pacientes activos</span>
+          </div>
+          <div class="resumen-item resumen-item--wide">
+            <span class="resumen-value" id="proPendientes">–</span>
+            <span class="resumen-label">Consentimientos pendientes</span>
+          </div>
+        </div>
+        <button class="logout-btn" id="logoutProBtnSide">Cerrar Sesión</button>
+      </aside>
+
+      <!-- MAIN DASHBOARD -->
+      <main class="dashboard-content">
+
+        <!-- NUEVO PACIENTE -->
+        <section class="dash-panel" aria-labelledby="nuevoPacienteHeading">
+          <div class="dash-header">
+            <h3 id="nuevoPacienteHeading">➕ Crear perfil de paciente</h3>
+          </div>
+          <form id="formNuevoPaciente" novalidate class="paciente-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="pacNombre">Nombre completo del niño/a *</label>
+                <input type="text" id="pacNombre" placeholder="Ej: Leo Martínez" required />
+              </div>
+              <div class="form-group">
+                <label for="pacFechaDia">Fecha de nacimiento</label>
+                <div class="fecha-selects" id="pacFecha">
+                  <select id="pacFechaDia" aria-label="Día">
+                    <option value="">Día</option>
+                  </select>
+                  <select id="pacFechaMes" aria-label="Mes">
+                    <option value="">Mes</option>
+                    <option value="01">Enero</option>
+                    <option value="02">Febrero</option>
+                    <option value="03">Marzo</option>
+                    <option value="04">Abril</option>
+                    <option value="05">Mayo</option>
+                    <option value="06">Junio</option>
+                    <option value="07">Julio</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                  </select>
+                  <select id="pacFechaAnio" aria-label="Año">
+                    <option value="">Año</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="pacGenero">Género</label>
+                <select id="pacGenero">
+                  <option value="">Seleccionar</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                  <option value="otro">Otro / No especificado</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="pacDiagnostico">Diagnóstico / Motivo de consulta</label>
+                <input type="text" id="pacDiagnostico" placeholder="Ej: TEA, TDAH, Dislexia..." />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="pacObservaciones">Observaciones clínicas iniciales</label>
+              <textarea id="pacObservaciones" placeholder="Notas relevantes para el expediente..."></textarea>
+            </div>
+            <fieldset class="consent-fieldset">
+              <legend>📋 Datos del tutor legal (para solicitud de consentimiento)</legend>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tutorEmail">Email del tutor legal *</label>
+                  <input type="email" id="tutorEmail" placeholder="padre@ejemplo.com" required />
+                </div>
+                <div class="form-group">
+                  <label for="tutorNombre">Nombre del tutor</label>
+                  <input type="text" id="tutorNombre" placeholder="Ej: María López" />
+                </div>
+              </div>
+              <p class="consent-note">ℹ️ Se enviará una solicitud de consentimiento al portal del tutor. El perfil quedará vinculado solo si el tutor acepta.</p>
+            </fieldset>
+            <button type="submit" class="btn btn-primary">Crear perfil y enviar solicitud</button>
+          </form>
+        </section>
+
+        <!-- LISTA DE PACIENTES -->
+        <section class="dash-panel" aria-labelledby="misPacientesHeading">
+          <div class="dash-header">
+            <h3 id="misPacientesHeading">Mis Pacientes</h3>
+          </div>
+          <div id="listaPacientes" aria-live="polite">
+            <p class="portal-empty">Cargando pacientes...</p>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="../js/profesional-app.js"></script>
+  <script defer src="../js/main.js"></script>
+</body>
+</html>
