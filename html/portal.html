@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -37,9 +37,8 @@
         <p class="profile-role" id="portalRol"></p>
 
         <div class="patient-info">
-          <h4>Datos del Paciente <span class="icon-edit" title="Editar datos">⚙️</span></h4>
-          <div class="patient-item" id="portalPaciente"></div>
-          <div class="patient-item" id="portalRef"></div>
+          <h4 style="margin-bottom:8px;">Datos del Menor</h4>
+          <div class="patient-item" style="color:#888;">Cargando información...</div>
         </div>
 
         <div class="contact-info">
@@ -68,6 +67,17 @@
 
       <!-- DASHBOARD PRINCIPAL -->
       <main class="dashboard-content">
+
+        <!-- SECCIÓN: MIS HIJOS / PACIENTES -->
+        <section class="dash-panel" aria-labelledby="misPacientesHeading">
+          <div class="dash-header">
+            <h3 id="misPacientesHeading">Mis Hijos / Pacientes</h3>
+            <button class="btn btn-primary btn-compact" id="btnNuevoPaciente">+ Registrar Hijo</button>
+          </div>
+          <div class="patient-list" id="misPacientesList" aria-live="polite" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+            <p class="portal-empty">Cargando pacientes...</p>
+          </div>
+        </section>
 
         <!-- SECCIÓN: AGENDA DE CITAS -->
         <section class="dash-panel" aria-labelledby="citasHeading">
@@ -116,8 +126,68 @@
     </div>
   </div>
 
+  <!-- ===================== MODALES (PACIENTES) ===================== -->
+  <dialog id="modalNuevoPaciente" style="padding: 24px; border-radius: 8px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 400px; width: 100%;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+      <h2 style="margin:0; font-size:1.25rem;">Registrar Nuevo Hijo/a</h2>
+      <button id="cerrarModalNuevoPaciente" style="background:none; border:none; font-size:1.5rem; cursor:pointer;" aria-label="Cerrar">&times;</button>
+    </div>
+    <form id="formNuevoPaciente" style="display:flex; flex-direction:column; gap:12px;">
+      <div>
+        <label for="nuevoPacienteNombre" style="display:block; margin-bottom:4px; font-weight:600;">Nombre del menor *</label>
+        <input type="text" id="nuevoPacienteNombre" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" />
+      </div>
+      <div>
+        <label for="nuevoPacienteFecha" style="display:block; margin-bottom:4px; font-weight:600;">Fecha de Nacimiento</label>
+        <input type="date" id="nuevoPacienteFecha" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" />
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-top:12px;">Guardar Registro</button>
+    </form>
+  </dialog>
+
+  <dialog id="modalAsignarProfesional" style="padding: 24px; border-radius: 8px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 400px; width: 100%;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+      <h2 style="margin:0; font-size:1.25rem;">Asignar Profesional</h2>
+      <button id="cerrarModalAsignarProfesional" style="background:none; border:none; font-size:1.5rem; cursor:pointer;" aria-label="Cerrar">&times;</button>
+    </div>
+    <p>Selecciona el profesional para <strong id="asignarNombrePaciente"></strong>:</p>
+    <form id="formAsignarProfesional" style="display:flex; flex-direction:column; gap:12px;">
+      <input type="hidden" id="asignarIdPaciente" />
+      <div>
+        <label for="selectProfesional" style="display:block; margin-bottom:4px; font-weight:600;">Profesional del centro *</label>
+        <select id="selectProfesional" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+          <option value="">Cargando profesionales...</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-top:12px;">Confirmar Asignación</button>
+    </form>
+  </dialog>
+
+  <dialog id="modalEditarPaciente" style="padding: 24px; border-radius: 8px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 400px; width: 100%;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+      <h2 style="margin:0; font-size:1.25rem;">Editar Datos del Menor</h2>
+      <button id="cerrarModalEditarPaciente" style="background:none; border:none; font-size:1.5rem; cursor:pointer;" aria-label="Cerrar">&times;</button>
+    </div>
+    <form id="formEditarPaciente" style="display:flex; flex-direction:column; gap:12px;">
+      <input type="hidden" id="editarPacienteId" />
+      <div>
+        <label for="editarPacienteNombre" style="display:block; margin-bottom:4px; font-weight:600;">Nombre del menor *</label>
+        <input type="text" id="editarPacienteNombre" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" />
+      </div>
+      <div>
+        <label for="editarPacienteFecha" style="display:block; margin-bottom:4px; font-weight:600;">Fecha de Nacimiento</label>
+        <input type="date" id="editarPacienteFecha" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" />
+      </div>
+      <div>
+        <label for="editarPacienteDiagnostico" style="display:block; margin-bottom:4px; font-weight:600;">Motivo de consulta</label>
+        <textarea id="editarPacienteDiagnostico" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; resize:vertical; min-height:80px;" placeholder="TDAH, dislexia, problemas de lectura..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-top:12px;">Guardar Cambios</button>
+    </form>
+  </dialog>
+
   <script src="../js/portal-data.js"></script>
   <script src="../js/portal-app.js"></script>
-  <script defer src="../js/main.js"></script>
+  <script src="../js/config.js"></script>`n<script defer src="../js/main.js"></script>
 </body>
 </html>

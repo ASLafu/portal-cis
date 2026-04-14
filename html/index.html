@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -162,7 +162,7 @@
             </div>
             <div class="form-group">
               <label for="telefono">Teléfono *</label>
-              <input type="tel" id="telefono" name="telefono" placeholder="Ej: 612345678" required>
+              <input type="tel" id="telefono" name="telefono" placeholder="Ej: 612345678 o 912345678" required>
             </div>
           </div>
           <div class="form-row">
@@ -200,8 +200,16 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="motivo">Motivo de consulta</label>
-            <textarea id="motivo" name="motivo" placeholder="Describe brevemente el motivo de tu consulta..."></textarea>
+            <label for="curso">Elegir curso</label>
+            <select id="curso" name="curso">
+              <option value="">Seleccionar curso</option>
+              <option value="Cómo manejar las rabietas y la frustración">Cómo manejar las rabietas y la frustración</option>
+              <option value="Estrategias para trabajar en casa con niños con TDAH">Estrategias para trabajar en casa con niños con TDAH</option>
+              <option value="Comunicación efectiva con hijos con TEA">Comunicación efectiva con hijos con TEA</option>
+              <option value="Técnicas para mejorar la lectoescritura en casa">Técnicas para mejorar la lectoescritura en casa</option>
+              <option value="Normas, límites y disciplina positiva">Normas, límites y disciplina positiva</option>
+              <option value="Gestión emocional para toda la familia">Gestión emocional para toda la familia</option>
+            </select>
           </div>
           <button type="submit" class="btn btn-primary">Solicitar cita →</button>
         </form>
@@ -380,6 +388,6 @@
     </div>
   </footer>
 
-<script defer src="../js/main.js?v=1774087323110"></script>
+<script src="../js/config.js"></script>`n<script defer src="../js/main.js?v=1774087323110"></script>
 </body>
 </html>

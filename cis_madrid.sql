@@ -221,7 +221,8 @@ ORDER BY c.fecha ASC, c.hora ASC;
 -- ============================================================
 CREATE TABLE IF NOT EXISTS usuarios (
   id            INT           AUTO_INCREMENT PRIMARY KEY,
-  nombre        VARCHAR(100)  NOT NULL             COMMENT 'Nombre completo del tutor legal o profesional',
+  nombre        VARCHAR(100)  NOT NULL             COMMENT 'Nombre del tutor legal o profesional',
+  apellido      VARCHAR(100)  NOT NULL             COMMENT 'Apellido(s) del tutor legal o profesional',
   email         VARCHAR(100)  NOT NULL UNIQUE       COMMENT 'Email de acceso (único)',
   telefono      VARCHAR(20)                        COMMENT 'Teléfono de contacto',
   password_hash VARCHAR(255)  NOT NULL             COMMENT 'Contraseña hasheada con bcrypt',
@@ -246,8 +247,8 @@ CREATE TABLE IF NOT EXISTS pacientes (
   genero                ENUM('masculino','femenino','otro'),
   diagnostico_principal VARCHAR(200)                      COMMENT 'Diagnóstico o motivo principal de consulta',
   observaciones         TEXT                              COMMENT 'Notas clínicas del profesional',
-  profesional_id        INT           NOT NULL             COMMENT 'FK a usuarios (rol=profesional) que creó el perfil',
-  tutor_usuario_id      INT                               COMMENT 'FK a usuarios (rol=familia) vinculado – NULL hasta aceptar',
+  profesional_id        INT                               COMMENT 'FK a usuarios (rol=profesional) - NULL hasta que el padre asigne',
+  tutor_usuario_id      INT                               COMMENT 'FK a usuarios (rol=familia) vinculado',
   activo                TINYINT(1)    DEFAULT 1,
   created_at            DATETIME      DEFAULT CURRENT_TIMESTAMP,
   updated_at            DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

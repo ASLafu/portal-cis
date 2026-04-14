@@ -15,9 +15,10 @@ DELETE FROM usuarios WHERE rol = 'admin';
 
 -- Crea la cuenta de administradora (contraseña: CIS2026admin)
 -- NOTA: El hash fue generado con bcrypt rounds=12
-INSERT INTO usuarios (nombre, email, telefono, password_hash, rol, activo)
+INSERT INTO usuarios (nombre, apellido, email, telefono, password_hash, rol, activo)
 VALUES (
-  'Ana Sara Lafuente',
+  'Ana Sara',
+  'Lafuente',
   'a.lafuente.defrutos@gmail.com',
   '+34605426298',
   '$2a$12$rj8fm8gzY0s2bOH3bPY./u6q5YtXsI0jAPWghGz1RuhoPY876gk5G',

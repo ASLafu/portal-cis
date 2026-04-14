@@ -61,8 +61,6 @@
     if (rol)    rol.textContent    = u.rol;
     if (tel)    tel.textContent    = `📞 ${u.telefono}`;
     if (email)  email.textContent  = `✉️ ${u.email}`;
-    if (pac)    pac.textContent    = `👤 ${u.paciente.nombre} (${u.paciente.edad} años)`;
-    if (ref)    ref.textContent    = `📋 Ref: ${u.paciente.ref}`;
   }
 
   /* ----------------------------------------------------------
@@ -261,6 +259,250 @@
   }
 
   /* ----------------------------------------------------------
+     INTEGRACIÓN API: GESTIÓN DE PACIENTES (HIJOS)
+  ---------------------------------------------------------- */
+  async function cargarPacientes(usuarioId) {
+    const listEl = document.getElementById('misPacientesList');
+    if (!listEl) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/mis-pacientes?usuarioId=${usuarioId}`);
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.mensaje || 'Error al cargar pacientes');
+      
+      const pacientes = data.pacientes || [];
+      
+      if (pacientes.length === 0) {
+        listEl.innerHTML = '<p class="portal-empty">No tienes hijos registrados todavía.</p>';
+        const sidebarInfo = document.querySelector('.patient-info');
+        if (sidebarInfo) {
+          sidebarInfo.innerHTML = `<h4>Datos del Menor</h4><div class="patient-item" style="color:#888;">Sin pacientes registrados. Usa el botón superior para añadir uno.</div>`;
+        }
+        return;
+      }
+
+      listEl.innerHTML = pacientes.map(p => `
+        <div class="apt-card" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h4 style="margin:0 0 4px 0;">${esc(p.nombre)}</h4>
+            <p style="margin:0; font-size:0.9rem; color:#666;">
+              Profesional: ${p.profesional_nombre ? `<strong>${esc(p.profesional_nombre)}</strong>` : '<span style="color:#d9534f;">Sin asignar</span>'}
+            </p>
+          </div>
+          <div>
+            ${!p.profesional_nombre ? `<button class="btn btn-outline btn-sm btn-asignar" data-id="${p.id}" data-nombre="${esc(p.nombre)}">Dar acceso a profesional</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      // Actualizar menú lateral izquierdo de Datos del Paciente
+      const sidebarInfo = document.querySelector('.patient-info');
+      if (sidebarInfo) {
+        sidebarInfo.innerHTML = `<h4>Datos del Menor</h4>` + pacientes.map(p => {
+          // Extraer YYYY-MM-DD
+          let f = '';
+          if (p.fecha_nacimiento) {
+             const d = new Date(p.fecha_nacimiento);
+             f = d.toISOString().split('T')[0];
+          }
+          return `
+          <div style="border-bottom:1px solid #eee; padding-bottom:8px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color: #4A90A4;">👤 ${esc(p.nombre)}</strong>
+              <span class="icon-edit btn-editar-paciente" data-id="${p.id}" data-nombre="${esc(p.nombre)}" data-fecha="${f}" data-diag="${esc(p.diagnostico_principal || '')}" style="cursor:pointer;" title="Editar datos">⚙️</span>
+            </div>
+            <div class="patient-item" style="margin-top:4px;">🎂 ${f ? parseFecha(f).texto : 'Sin fecha de nacimiento'}</div>
+            <div class="patient-item" style="font-size:0.85em; color:#666;">🩺 ${esc(p.diagnostico_principal || 'Sin especificar motivo')}</div>
+          </div>
+        `}).join('');
+      }
+
+    } catch (err) {
+      listEl.innerHTML = `<p class="portal-empty" style="color:red;">Error: ${err.message}</p>`;
+      const sidebarInfo = document.querySelector('.patient-info');
+      if (sidebarInfo) {
+        sidebarInfo.innerHTML = `<h4>Datos del Menor</h4><div class="patient-item" style="color:red;">Error al cargar información</div>`;
+      }
+    }
+  }
+
+  function initGestionPacientes(usuario) {
+    const modalNuevo   = document.getElementById('modalNuevoPaciente');
+    const modalAsignar = document.getElementById('modalAsignarProfesional');
+    const btnNuevo     = document.getElementById('btnNuevoPaciente');
+    const listEl       = document.getElementById('misPacientesList');
+
+    if (!modalNuevo || !usuario || !usuario.id) return;
+
+    cargarPacientes(usuario.id);
+
+    // Modal Nuevo Paciente
+    if (btnNuevo) btnNuevo.addEventListener('click', () => modalNuevo.showModal());
+    const btnCerrarNP = document.getElementById('cerrarModalNuevoPaciente');
+    if (btnCerrarNP) btnCerrarNP.addEventListener('click', () => modalNuevo.close());
+    
+    const formNP = document.getElementById('formNuevoPaciente');
+    if (formNP) {
+      formNP.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nombreBtn = formNP.querySelector('[type="submit"]');
+        const nombre = document.getElementById('nuevoPacienteNombre').value;
+        const fecha = document.getElementById('nuevoPacienteFecha').value;
+        
+        nombreBtn.disabled = true;
+        nombreBtn.textContent = 'Guardando...';
+
+        try {
+          const res = await fetch(`${API_BASE}/api/pacientes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              usuarioId: usuario.id,
+              rol: 'familia', // Nuevo rol permitido gracias a los cambios en BD
+              nombre: nombre,
+              fechaNacimiento: fecha || null
+            })
+          });
+          const resp = await res.json();
+          if(res.ok) {
+            alert('Hijo/a registrado exitosamente.');
+            modalNuevo.close();
+            formNP.reset();
+            cargarPacientes(usuario.id);
+          } else {
+            alert('Error: ' + resp.mensaje);
+          }
+        } catch (err) {
+          alert('Error conectando a la API.');
+        } finally {
+          nombreBtn.disabled = false;
+          nombreBtn.textContent = 'Guardar Registro';
+        }
+      });
+    }
+
+    // Modal Asignar Profesional
+    if (listEl) {
+      listEl.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('btn-asignar')) {
+          const id = e.target.getAttribute('data-id');
+          const nombre = e.target.getAttribute('data-nombre');
+          
+          document.getElementById('asignarIdPaciente').value = id;
+          document.getElementById('asignarNombrePaciente').textContent = nombre;
+          
+          try {
+            const res = await fetch(`${API_BASE}/api/profesionales-activos`);
+            const data = await res.json();
+            const select = document.getElementById('selectProfesional');
+            if (res.ok && data.profesionales) {
+              select.innerHTML = '<option value="">Selecciona profesional...</option>' + 
+                data.profesionales.map(pr => `<option value="${pr.id}">${pr.nombre} ${pr.apellido}</option>`).join('');
+            }
+          } catch (error) {
+            console.error("Error cargando profesionales", error);
+          }
+          
+          modalAsignar.showModal();
+        }
+      });
+    }
+
+    const btnCerrarAP = document.getElementById('cerrarModalAsignarProfesional');
+    if (btnCerrarAP) btnCerrarAP.addEventListener('click', () => modalAsignar.close());
+
+    const formAP = document.getElementById('formAsignarProfesional');
+    if (formAP) {
+      formAP.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const idPaciente = document.getElementById('asignarIdPaciente').value;
+        const idProf = document.getElementById('selectProfesional').value;
+        const submitBtn = formAP.querySelector('[type="submit"]');
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Asignando...';
+
+        try {
+          const res = await fetch(`${API_BASE}/api/pacientes/${idPaciente}/asignar-profesional`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuarioId: usuario.id, profesionalId: idProf })
+          });
+          const resp = await res.json();
+          if (res.ok) {
+            alert('¡Consentimiento otorgado y profesional asignado correctamente!');
+            modalAsignar.close();
+            cargarPacientes(usuario.id);
+          } else {
+            alert('Error: ' + resp.mensaje);
+          }
+        } catch (err) {
+          alert('Error conectando a la API.');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Confirmar Asignación';
+        }
+      });
+    }
+
+    // Modal Editar Paciente (Delegación en sidebar)
+    const sidebarInfo = document.querySelector('.patient-info');
+    const modalEditar = document.getElementById('modalEditarPaciente');
+    const formEP = document.getElementById('formEditarPaciente');
+    const btnCerrarEP = document.getElementById('cerrarModalEditarPaciente');
+
+    if (sidebarInfo && modalEditar) {
+      sidebarInfo.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-editar-paciente');
+        if (btn) {
+          document.getElementById('editarPacienteId').value = btn.getAttribute('data-id');
+          document.getElementById('editarPacienteNombre').value = btn.getAttribute('data-nombre');
+          document.getElementById('editarPacienteFecha').value = btn.getAttribute('data-fecha');
+          document.getElementById('editarPacienteDiagnostico').value = btn.getAttribute('data-diag') || '';
+          modalEditar.showModal();
+        }
+      });
+    }
+
+    if (btnCerrarEP) btnCerrarEP.addEventListener('click', () => modalEditar.close());
+
+    if (formEP) {
+      formEP.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editarPacienteId').value;
+        const nombre = document.getElementById('editarPacienteNombre').value;
+        const fecha = document.getElementById('editarPacienteFecha').value;
+        const diag = document.getElementById('editarPacienteDiagnostico').value;
+        const submitBtn = formEP.querySelector('[type="submit"]');
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Guardando...';
+
+        try {
+          const res = await fetch(`${API_BASE}/api/pacientes/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, fechaNacimiento: fecha, diagnostico: diag })
+          });
+          const resp = await res.json();
+          if (res.ok) {
+            alert('Datos guardados correctamente.');
+            modalEditar.close();
+            cargarPacientes(usuario.id);
+          } else {
+            alert('Error: ' + resp.mensaje);
+          }
+        } catch (err) {
+          alert('Error de conexión.');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Guardar Cambios';
+        }
+      });
+    }
+  }
+
+  /* ----------------------------------------------------------
      INIT
   ---------------------------------------------------------- */
   function cargarDatos() {
@@ -270,8 +512,7 @@
       // ── Usuario que acaba de registrarse ──
       const u = JSON.parse(raw);
       return {
-        usuario: {
-          nombre:   u.nombre,
+        usuario: {          id:       u.id,          nombre:   u.nombre,
           rol:      u.rol || 'Tutor Legal',
           telefono: u.telefono,
           email:    u.email,
@@ -302,6 +543,11 @@
     renderFacturacion(datos.facturacion);
     initCancelarCita();
     initExportarExtracto(datos.usuario.email);
+    
+    // Inicializar gestión dinámica de pacientes
+    if (datos.usuario && datos.usuario.id) {
+      initGestionPacientes(datos.usuario);
+    }
   }
 
   if (document.readyState === 'loading') {

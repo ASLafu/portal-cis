@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const API = 'http://localhost:3001';
+  const API = API_BASE;
 
   /* ----------------------------------------------------------
      GUARDIA: solo profesionales

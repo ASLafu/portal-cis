@@ -5,7 +5,8 @@
 
 'use strict';
 
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const express = require('express');
 const cors    = require('cors');
@@ -14,7 +15,6 @@ const bcrypt  = require('bcryptjs');
 const crypto  = require('crypto');
 const mailer  = require('nodemailer');
 
-const path = require('path');
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
@@ -174,11 +174,11 @@ function emailValido(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
-/** Validación de teléfono español */
+/** Validación de teléfono español (se aceptan fijos y móviles) */
 function telefonoValido(tel) {
   const limpio = tel.replace(/\s+/g, '');
   const t = limpio.startsWith('+') ? limpio : '+34' + limpio;
-  return /^\+34[6789]\d{8}$/.test(t);
+  return /^\+34(?:[6789]\d{8}|\d{9})$/.test(t);
 }
 
 // ------------------------------------------------------------
@@ -197,20 +197,20 @@ app.get('/api/health', async (_req, res) => {
 //  POST /api/registro  – Crear nueva cuenta de familia
 // ------------------------------------------------------------
 app.post('/api/registro', async (req, res) => {
-  const { nombre, email, telefono, password } = req.body;
+  const { nombre, apellido, email, telefono, password } = req.body;
 
   // --- Validaciones de entrada ---
-  if (!nombre || !email || !telefono || !password) {
+  if (!nombre || !apellido || !email || !telefono || !password) {
     return errorRes(res, 400, 'Todos los campos son obligatorios.');
   }
-  if (nombre.trim().length < 2) {
-    return errorRes(res, 400, 'El nombre debe tener al menos 2 caracteres.');
+  if (nombre.trim().length < 2 || apellido.trim().length < 2) {
+    return errorRes(res, 400, 'El nombre y el apellido deben tener al menos 2 caracteres.');
   }
   if (!emailValido(email)) {
     return errorRes(res, 400, 'El correo electrónico no tiene un formato válido.');
   }
   if (!telefonoValido(telefono)) {
-    return errorRes(res, 400, 'El teléfono no tiene un formato español válido (ej: 612345678).');
+    return errorRes(res, 400, 'El teléfono no tiene un formato español válido (ej: 612345678 o 912345678).');
   }
   if (password.length < 8) {
     return errorRes(res, 400, 'La contraseña debe tener al menos 8 caracteres.');
@@ -235,9 +235,9 @@ app.post('/api/registro', async (req, res) => {
 
     // Insertar usuario
     const [resultado] = await pool.query(
-      `INSERT INTO usuarios (nombre, email, telefono, password_hash, rol)
-       VALUES (?, ?, ?, ?, 'familia')`,
-      [nombre.trim(), email.toLowerCase(), tlfNorm, hash]
+      `INSERT INTO usuarios (nombre, apellido, email, telefono, password_hash, rol)
+       VALUES (?, ?, ?, ?, ?, 'familia')`,
+      [nombre.trim(), apellido.trim(), email.toLowerCase(), tlfNorm, hash]
     );
 
     const nuevoId = resultado.insertId;
@@ -249,6 +249,7 @@ app.post('/api/registro', async (req, res) => {
       usuario: {
         id:       nuevoId,
         nombre:   nombre.trim(),
+        apellido: apellido.trim(),
         email:    email.toLowerCase(),
         telefono: tlfNorm,
         rol:      'familia',
@@ -277,7 +278,7 @@ app.post('/api/login', async (req, res) => {
   try {
     // Buscar usuario
     const [filas] = await pool.query(
-      'SELECT id, nombre, email, telefono, password_hash, rol, activo FROM usuarios WHERE email = ?',
+      'SELECT id, nombre, apellido, email, telefono, password_hash, rol, activo FROM usuarios WHERE email = ?',
       [email.toLowerCase()]
     );
 
@@ -305,6 +306,7 @@ app.post('/api/login', async (req, res) => {
       usuario: {
         id:       usuario.id,
         nombre:   usuario.nombre,
+        apellido: usuario.apellido,
         email:    usuario.email,
         telefono: usuario.telefono,
         rol:      usuario.rol,
@@ -334,7 +336,7 @@ app.post('/api/registro-profesional', async (req, res) => {
     return errorRes(res, 400, 'El correo electrónico no tiene un formato válido.');
   }
   if (!telefonoValido(telefono)) {
-    return errorRes(res, 400, 'El teléfono no tiene un formato español válido.');
+    return errorRes(res, 400, 'El teléfono no tiene un formato español válido (ej: 612345678 o 912345678).');
   }
   if (password.length < 8) {
     return errorRes(res, 400, 'La contraseña debe tener al menos 8 caracteres.');
@@ -351,7 +353,7 @@ app.post('/api/registro-profesional', async (req, res) => {
 
     const hash = await bcrypt.hash(password, 12);
     const [resultado] = await pool.query(
-      `INSERT INTO usuarios (nombre, email, telefono, password_hash, rol) VALUES (?, ?, ?, ?, 'profesional')`,
+      `INSERT INTO usuarios (nombre, apellido, email, telefono, password_hash, rol) VALUES (?, '', ?, ?, ?, 'profesional')`,
       [nombre.trim(), email.toLowerCase(), tlfNorm, hash]
     );
 
@@ -405,7 +407,22 @@ app.post('/api/login-profesional', async (req, res) => {
 app.post('/api/pacientes', async (req, res) => {
   const { usuarioId, rol, nombre, fechaNacimiento, genero, diagnostico, observaciones, emailTutor, nombreTutor } = req.body;
 
-  if (rol !== 'profesional') return errorRes(res, 403, 'Solo los profesionales pueden crear perfiles de pacientes.');
+  if (rol === 'familia') {
+    if (!nombre) return errorRes(res, 400, 'El nombre del paciente es obligatorio.');
+    try {
+      const [pacResult] = await pool.query(
+        `INSERT INTO pacientes (nombre, fecha_nacimiento, genero, diagnostico_principal, tutor_usuario_id)
+         VALUES (?, ?, ?, ?, ?)`,
+        [nombre.trim(), fechaNacimiento || null, genero || null, diagnostico || null, usuarioId]
+      );
+      return okRes(res, { mensaje: 'Paciente creado correctamente', pacienteId: pacResult.insertId });
+    } catch (err) {
+      console.error(err);
+      return errorRes(res, 500, 'Error al crear el perfil del paciente');
+    }
+  }
+
+  if (rol !== 'profesional') return errorRes(res, 403, 'Rol no autorizado para crear perfiles de pacientes.');
   if (!nombre || !emailTutor) return errorRes(res, 400, 'El nombre del niño y el email del tutor son obligatorios.');
   if (!emailValido(emailTutor)) return errorRes(res, 400, 'El email del tutor no tiene un formato válido.');
 
@@ -579,9 +596,9 @@ app.get('/api/mis-pacientes', async (req, res) => {
   try {
     const [pacientes] = await pool.query(
       `SELECT p.id, p.nombre, p.fecha_nacimiento, p.genero, p.diagnostico_principal,
-              u.nombre AS profesional_nombre
+              u.nombre AS profesional_nombre, u.id AS profesional_id
        FROM pacientes p
-       JOIN usuarios u ON u.id = p.profesional_id
+       LEFT JOIN usuarios u ON u.id = p.profesional_id
        WHERE p.tutor_usuario_id = ? AND p.activo = 1
        ORDER BY p.nombre ASC`,
       [usuarioId]
@@ -590,6 +607,137 @@ app.get('/api/mis-pacientes', async (req, res) => {
   } catch (err) {
     console.error('[MIS-PACIENTES] Error:', err.message);
     return errorRes(res, 500, 'Error interno del servidor.');
+  }
+});
+
+// ============================================================
+//  GET /api/profesionales-activos  – Listar profesionales del centro
+// ============================================================
+app.get('/api/profesionales-activos', async (req, res) => {
+  try {
+    const [profesionales] = await pool.query(
+      `SELECT id, nombre, apellido FROM usuarios WHERE rol = 'profesional' AND activo = 1 ORDER BY nombre ASC`
+    );
+    return okRes(res, { profesionales });
+  } catch (err) {
+    return errorRes(res, 500, 'Error interno del servidor.');
+  }
+});
+
+// ============================================================
+//  POST /api/pacientes/:id/asignar-profesional  – Dar consentimiento (Familia)
+// ============================================================
+app.post('/api/pacientes/:id/asignar-profesional', async (req, res) => {
+  const { id } = req.params;
+  const { usuarioId, profesionalId } = req.body;
+
+  if (!usuarioId || !profesionalId) return errorRes(res, 400, 'Faltan parámetros.');
+
+  try {
+    // Verificar que el paciente pertenece al tutor
+    const [rows] = await pool.query('SELECT tutor_usuario_id FROM pacientes WHERE id = ?', [id]);
+    if (rows.length === 0) return errorRes(res, 404, 'Paciente no encontrado.');
+    if (rows[0].tutor_usuario_id != usuarioId) return errorRes(res, 403, 'No tienes permiso para modificar este paciente.');
+
+    // Verificar que el profesional existe y es profesional
+    const [pro] = await pool.query('SELECT id FROM usuarios WHERE id = ? AND rol = "profesional" AND activo = 1', [profesionalId]);
+    if (pro.length === 0) return errorRes(res, 404, 'Profesional no encontrado.');
+
+    // Asignar el profesional
+    await pool.query('UPDATE pacientes SET profesional_id = ? WHERE id = ?', [profesionalId, id]);
+
+    return okRes(res, { mensaje: 'Profesional asignado y consentimiento otorgado correctamente.' });
+  } catch (err) {
+    console.error('[ASIGNAR-PROF] Error:', err.message);
+    return errorRes(res, 500, 'Error interno del servidor.');
+  }
+});
+
+// ============================================================
+//  PUT /api/pacientes/:id  – Editar datos del paciente (Familia)
+// ============================================================
+app.put('/api/pacientes/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nombre, fechaNacimiento, diagnostico } = req.body;
+  if (!nombre) return errorRes(res, 400, 'El nombre es obligatorio.');
+  try {
+    await pool.query(
+      'UPDATE pacientes SET nombre = ?, fecha_nacimiento = ?, diagnostico_principal = ? WHERE id = ?',
+      [nombre.trim(), fechaNacimiento || null, diagnostico ? diagnostico.trim() : null, id]
+    );
+    return okRes(res, { mensaje: 'Paciente actualizado correctamente.' });
+  } catch (err) {
+    console.error('[EDITAR-PACIENTE] Error:', err.message);
+    return errorRes(res, 500, 'Error al actualizar paciente.');
+  }
+});
+
+// ============================================================
+//  POST /api/citas  – Crear nueva solicitud de cita / curso
+// ============================================================
+app.post('/api/citas', async (req, res) => {
+  try {
+    const { nombre, telefono, email, profesional, fecha, hora, curso, motivo } = req.body;
+    if (!nombre || !telefono || !email || !profesional || !fecha || !hora) {
+      return errorRes(res, 400, 'Faltan campos obligatorios para la solicitud.');
+    }
+
+    // Buscar ID del profesional mediante slug
+    const [profRows] = await pool.query('SELECT id, nombre FROM profesionales WHERE slug = ?', [profesional]);
+    if (profRows.length === 0) {
+      return errorRes(res, 404, 'Profesional no encontrado.');
+    }
+    const profesionalId = profRows[0].id;
+    const profesionalNombre = profRows[0].nombre;
+
+    const motivoFinal = curso || motivo || 'Sin especificar';
+
+    const [result] = await pool.query(
+      'INSERT INTO citas (nombre, telefono, email, profesional_id, fecha, hora, motivo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [nombre, telefono, email, profesionalId, fecha, hora, motivoFinal, 'pendiente']
+    );
+
+    // Enviar correo de confirmación
+    try {
+      await transport.sendMail({
+        from: process.env.EMAIL_FROM || 'CIS Madrid <cismadrid23@gmail.com>',
+        to: email,
+        subject: `✅ Confirmación de solicitud – CIS Madrid`,
+        html: `
+          <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.5; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h1 style="color: #2e7d32; margin: 0;">CIS Madrid</h1>
+              <p style="color: #666; font-size: 14px; margin-top: 5px;">Centro de Intervención Psicoeducativa</p>
+            </div>
+            
+            <p>¡Hola <strong>${nombre}</strong>!</p>
+            <p>Hemos recibido tu solicitud correctamente. Nuestro equipo revisará la disponibilidad y se pondrá en contacto contigo muy pronto al teléfono <strong>${telefono}</strong> para confirmar tu plaza de forma definitiva.</p>
+            
+            <div style="background: #f1f8e9; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <h3 style="color: #2e7d32; margin-top: 0;">Detalles de tu solicitud:</h3>
+              <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="margin-bottom: 8px;">👤 <strong>Profesional asignado:</strong> ${profesionalNombre}</li>
+                <li style="margin-bottom: 8px;">📅 <strong>Fecha solicitada:</strong> ${fecha}</li>
+                <li style="margin-bottom: 8px;">🕒 <strong>Hora solicitada:</strong> ${hora}</li>
+                <li style="margin-bottom: 8px;">📝 <strong>Curso seleccionado:</strong> ${motivoFinal}</li>
+              </ul>
+            </div>
+            
+            <p>Si necesitas modificar algún dato o tienes alguna duda, no dudes en enviarnos un correo respondiendo a este mensaje.</p>
+            <p>¡Gracias por confiar en el equipo de CIS Madrid!</p>
+          </div>
+        `
+      });
+      console.log(`[EMAIL] Correo de confirmación enviado a ${email} para la cita ${result.insertId}`);
+    } catch (mailErr) {
+      console.error('[EMAIL] Error al enviar el correo de confirmación de cita:', mailErr);
+      // No hacemos throw aquí para no bloquear la respuesta si solo falla el correo
+    }
+
+    return okRes(res, { citaId: result.insertId, message: 'Solicitud creada y correo enviado.' });
+  } catch (err) {
+    console.error('[POST CITA]', err.message);
+    return errorRes(res, 500, 'Error al registrar la solicitud de cita.');
   }
 });
 

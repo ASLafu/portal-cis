@@ -41,7 +41,7 @@ const ADMIN_TEL      = '+34605426298';
   // Eliminar admins anteriores e insertar
   await conn.query("DELETE FROM usuarios WHERE rol = 'admin'");
   const [result] = await conn.query(
-    "INSERT INTO usuarios (nombre, email, telefono, password_hash, rol, activo) VALUES (?, ?, ?, ?, 'admin', 1)",
+    "INSERT INTO usuarios (nombre, apellido, email, telefono, password_hash, rol, activo) VALUES (?, '', ?, ?, ?, 'admin', 1)",
     [ADMIN_NOMBRE, ADMIN_EMAIL, ADMIN_TEL, hash]
   );
   console.log(`✅ Admin creado con ID: ${result.insertId}`);

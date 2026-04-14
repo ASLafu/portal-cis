@@ -15,6 +15,24 @@ function inicializarApp() {
     });
   }
 
+  // Modificar botón "Zona Familias" si el usuario está registrado/logeado
+  const sesionActiva = sessionStorage.getItem('cis_usuario');
+  if (sesionActiva) {
+    try {
+      const usuarioObj = JSON.parse(sesionActiva);
+      // Busca el botón que apunte a login.html (normalmente "Zona Familias")
+      const botonZonaFamilias = document.querySelector('a.btn-nav[href="login.html"]');
+      if (botonZonaFamilias && usuarioObj.nombre) {
+        // En lugar de "Zona Familias", mostrar nombre y redirigir al portal
+        const primerNombre = usuarioObj.nombre.split(' ')[0];
+        botonZonaFamilias.textContent = `👤 Hola, ${primerNombre}`;
+        botonZonaFamilias.href = 'portal.html';
+      }
+    } catch (e) {
+      console.error("Error leyendo datos del usuario:", e);
+    }
+  }
+
   // 1. NAVEGACIÓN MÓVIL
   const hamburger = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
@@ -89,12 +107,12 @@ function inicializarApp() {
         return;
       }
 
-      // Validación 2: Teléfono español
+      // Validación 2: Teléfono español (se aceptan fijos y móviles)
       let telefonoLimpio = telefono.replace(/\s+/g, '');
       if (!telefonoLimpio.startsWith('+')) telefonoLimpio = '+34' + telefonoLimpio;
-      const telRegex = /^\+34[6789]\d{8}$/;
+      const telRegex = /^\+34(?:[6789]\d{8}|\d{9})$/;
       if (!telRegex.test(telefonoLimpio)) {
-        alert("⚠️ Por favor, introduce un número de teléfono español válido (ej: 612345678 o +34612345678).");
+        alert("⚠️ Por favor, introduce un número de teléfono español válido (ej: 612345678 o 912345678).");
         return;
       }
       document.getElementById('telefono').value = telefonoLimpio;
@@ -144,7 +162,7 @@ function inicializarApp() {
       submitBtn.textContent = 'Entrando...';
 
       try {
-        const resp = await fetch('http://localhost:3001/api/login', {
+        const resp = await fetch(API_BASE + '/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
@@ -161,7 +179,7 @@ function inicializarApp() {
         // Guardar sesión y redirigir
         sessionStorage.setItem('cis_usuario', JSON.stringify({
           id:       datos.usuario.id,
-          nombre:   datos.usuario.nombre,
+          nombre:   datos.usuario.apellido ? (datos.usuario.nombre + ' ' + datos.usuario.apellido) : datos.usuario.nombre,
           rol:      datos.usuario.rol === 'admin' ? 'Administrador' : 'Tutor Legal',
           telefono: datos.usuario.telefono,
           email:    datos.usuario.email,
@@ -197,13 +215,14 @@ function inicializarApp() {
       registroError.style.display = 'none';
 
       const nombre   = document.getElementById('nombre').value.trim();
+      const apellido = document.getElementById('apellido').value.trim();
       const tlf      = document.getElementById('tlf').value.trim();
       const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const submitBtn = registroForm.querySelector('[type="submit"]');
 
       // Validación cliente (rápida, antes de llamar a la API)
-      if (!nombre || !tlf || !email || !password) {
+      if (!nombre || !apellido || !tlf || !email || !password) {
         mostrarErrorRegistro('⚠️ Por favor, rellena todos los campos.');
         return;
       }
@@ -216,10 +235,10 @@ function inicializarApp() {
       submitBtn.textContent = 'Creando cuenta...';
 
       try {
-        const resp = await fetch('http://localhost:3001/api/registro', {
+        const resp = await fetch(API_BASE + '/api/registro', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre, email, telefono: tlf, password }),
+          body: JSON.stringify({ nombre, apellido, email, telefono: tlf, password }),
         });
         const datos = await resp.json();
 
@@ -233,7 +252,7 @@ function inicializarApp() {
         // Guardar sesión con datos reales del servidor
         sessionStorage.setItem('cis_usuario', JSON.stringify({
           id:       datos.usuario.id,
-          nombre:   datos.usuario.nombre,
+          nombre:   datos.usuario.nombre + ' ' + datos.usuario.apellido,
           rol:      'Tutor Legal',
           telefono: datos.usuario.telefono,
           email:    datos.usuario.email,
@@ -300,11 +319,40 @@ function inicializarApp() {
       dataTable.innerHTML = html;
     }
 
-    window.confirmarCita = function() {
-      const confirmWrap = document.getElementById('confirmWrap');
-      const successMsg = document.getElementById('successMsg');
-      if (confirmWrap) confirmWrap.classList.add('is-hidden');
-      if (successMsg) successMsg.classList.remove('is-hidden');
+    window.confirmarCita = async function() {
+      const confirmBtn = document.querySelector('.btn-primary[onclick="confirmarCita()"]');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Enviando...';
+      }
+
+      const bodyData = {};
+      params.forEach((value, key) => { bodyData[key] = value; });
+
+      try {
+        const res = await fetch(API_BASE + '/api/citas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.mensaje || errData.error || 'Error al solicitar la cita');
+        }
+
+        const confirmWrap = document.getElementById('confirmWrap');
+        const successMsg = document.getElementById('successMsg');
+        if (confirmWrap) confirmWrap.classList.add('is-hidden');
+        if (successMsg) successMsg.classList.remove('is-hidden');
+      } catch (err) {
+        console.error(err);
+        alert('⚠️ ' + err.message);
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = '✅ Confirmar solicitud';
+        }
+      }
     };
   }
 
@@ -326,7 +374,7 @@ function inicializarApp() {
       btn.disabled = true; btn.textContent = 'Verificando...';
 
       try {
-        const resp  = await fetch('http://localhost:3001/api/login-profesional', {
+        const resp  = await fetch(API_BASE + '/api/login-profesional', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
@@ -374,7 +422,7 @@ function inicializarApp() {
       btn.disabled = true; btn.textContent = 'Creando cuenta...';
 
       try {
-        const resp  = await fetch('http://localhost:3001/api/registro-profesional', {
+        const resp  = await fetch(API_BASE + '/api/registro-profesional', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nombre, email, telefono: tlf, password, codigoAcceso }),
         });
@@ -416,7 +464,7 @@ function inicializarApp() {
       btn.disabled = true; btn.textContent = 'Verificando...';
 
       try {
-        const resp  = await fetch('http://localhost:3001/api/login-admin', {
+        const resp  = await fetch(API_BASE + '/api/login-admin', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
