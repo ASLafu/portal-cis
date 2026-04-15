@@ -56,14 +56,22 @@ const pool = mysql.createPool({
 
 // Verificar conexión al arrancar (no-bloqueante)
 // En Railway la base de datos puede no estar disponible inicialmente
+const dbHost = process.env.MYSQLHOST     || process.env.DB_HOST     || 'localhost';
+const dbPort = Number(process.env.MYSQLPORT)     || Number(process.env.DB_PORT) || 3306;
+const dbUser = process.env.MYSQLUSER     || process.env.DB_USER     || 'root';
+const dbName = process.env.MYSQLDATABASE || process.env.DB_NAME     || 'cis_madrid';
+
+console.log(`[INIT] Conectando a MySQL: ${dbUser}@${dbHost}:${dbPort}/${dbName}`);
+
 pool.getConnection()
   .then(conn => {
-    console.log('✅  Conectado a MySQL →', process.env.DB_NAME || 'cis_madrid');
+    console.log('✅  Conectado a MySQL →', dbName);
     conn.release();
   })
   .catch(err => {
     console.warn('⚠️  Base de datos no disponible al iniciar:', err.message);
-    console.warn('    Las consultas a DB fallarán hasta que la conexión sea válida.');
+    console.warn(`    Intenta conectar a: ${dbUser}@${dbHost}:${dbPort}/${dbName}`);
+    console.warn('    Verifica que MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE estén configuradas en Railway.');
   });
 
 // ------------------------------------------------------------
@@ -212,6 +220,30 @@ app.get('/api/health', async (_req, res) => {
 // Ruta de healthcheck ligera para Railway / deploy
 app.get('/health', (_req, res) => {
   return res.status(200).json({ ok: true, mensaje: 'Servidor en funcionamiento' });
+});
+
+// ────────────────────────────────────────────────────────────
+//  DIAGNÓSTICO: GET /api/diagnóstico  (TEMPORAL - solo para debug)
+// ────────────────────────────────────────────────────────────
+app.get('/api/diagnostico', (_req, res) => {
+  return res.status(200).json({
+    ambiente: process.env.NODE_ENV || 'desarrollo',
+    puerto: PORT,
+    mysql: {
+      host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+      port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
+      user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+      database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'cis_madrid',
+      passwordConfigured: !!(process.env.MYSQLPASSWORD || process.env.DB_PASSWORD),
+    },
+    email: {
+      smtp_host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      smtp_port: process.env.SMTP_PORT || 587,
+      email_from: process.env.EMAIL_FROM || 'CIS Madrid <cismadrid23@gmail.com>',
+      smtp_user_configured: !!process.env.SMTP_USER,
+    },
+    mensaje: 'Usa este endpoint para verificar que todas las variables de entorno están configuradas correctamente en Railway.',
+  });
 });
 
 // ------------------------------------------------------------

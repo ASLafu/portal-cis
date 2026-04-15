@@ -265,7 +265,7 @@
     const listEl = document.getElementById('misPacientesList');
     if (!listEl) return;
     try {
-      const res = await fetch(`${API_BASE}/api/mis-pacientes?usuarioId=${usuarioId}`);
+      const res = await fetch(`${window.API_BASE}/api/mis-pacientes?usuarioId=${usuarioId}`);
       const data = await res.json();
       
       if (!res.ok) throw new Error(data.mensaje || 'Error al cargar pacientes');
@@ -353,7 +353,7 @@
         nombreBtn.textContent = 'Guardando...';
 
         try {
-          const res = await fetch(`${API_BASE}/api/pacientes`, {
+          const res = await fetch(`${window.API_BASE}/api/pacientes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -392,7 +392,7 @@
           document.getElementById('asignarNombrePaciente').textContent = nombre;
           
           try {
-            const res = await fetch(`${API_BASE}/api/profesionales-activos`);
+            const res = await fetch(`${window.API_BASE}/api/profesionales-activos`);
             const data = await res.json();
             const select = document.getElementById('selectProfesional');
             if (res.ok && data.profesionales) {
@@ -423,7 +423,7 @@
         submitBtn.textContent = 'Asignando...';
 
         try {
-          const res = await fetch(`${API_BASE}/api/pacientes/${idPaciente}/asignar-profesional`, {
+          const res = await fetch(`${window.API_BASE}/api/pacientes/${idPaciente}/asignar-profesional`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ usuarioId: usuario.id, profesionalId: idProf })
@@ -479,7 +479,7 @@
         submitBtn.textContent = 'Guardando...';
 
         try {
-          const res = await fetch(`${API_BASE}/api/pacientes/${id}`, {
+          const res = await fetch(`${window.API_BASE}/api/pacientes/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre, fechaNacimiento: fecha, diagnostico: diag })

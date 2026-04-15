@@ -1,70 +1,123 @@
 // ---------------------------------------------------------
 // CIS - Centro de Intervención Psicoeducativa
-// Archivo JavaScript Principal
+// Archivo JavaScript Principal — v2
 // ---------------------------------------------------------
 
-function inicializarApp() {
-  console.log("CIS JavaScript cargado correctamente.");
+/* =========================================================
+   UTILIDADES GLOBALES
+   ========================================================= */
 
-  // LOGOUT (portal familias)
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      sessionStorage.removeItem('cis_usuario');
-      window.location.href = 'index.html';
-    });
+/** Muestra un mensaje de error inline dentro de un formulario */
+function mostrarError(elemento, msg) {
+  if (!elemento) return;
+  elemento.textContent = msg;
+  elemento.style.display = msg ? 'block' : 'none';
+}
+
+/** Oculta el mensaje de error */
+function ocultarError(elemento) {
+  if (!elemento) return;
+  elemento.textContent = '';
+  elemento.style.display = 'none';
+}
+
+/** Valida email */
+function emailValido(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+/** Valida teléfono español (móvil o fijo) */
+function telefonoValido(tel) {
+  const limpio = tel.replace(/\s+/g, '');
+  const t = limpio.startsWith('+') ? limpio : '+34' + limpio;
+  return /^\+34(?:[6789]\d{8}|\d{9})$/.test(t);
+}
+
+/** Normaliza teléfono a +34XXXXXXXXX */
+function normalizarTelefono(tel) {
+  const limpio = tel.replace(/\s+/g, '');
+  return limpio.startsWith('+') ? limpio : '+34' + limpio;
+}
+
+/** Muestra banner de aviso cuando no hay servidor disponible */
+function mostrarAvisoSinServidor(form) {
+  const aviso = document.createElement('div');
+  aviso.style.cssText = 'background:#fff3e0;border-left:4px solid #f57c00;border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:.9rem;color:#e65100;line-height:1.6;';
+  aviso.innerHTML = '<strong>⚠️ Modo sin conexión</strong><br>Estás abriendo la página directamente como archivo. Para usar el portal de familias necesitas iniciar el servidor: <code>npm run dev</code> en la carpeta del proyecto.';
+  form.parentNode.insertBefore(aviso, form);
+  // Deshabilitar botón de envío
+  const btn = form.querySelector('[type="submit"]');
+  if (btn) {
+    btn.disabled = true;
+    btn.title = 'El servidor no está disponible';
+  }
+}
+
+/* =========================================================
+   FUNCIÓN PRINCIPAL
+   ========================================================= */
+
+function inicializarApp() {
+  console.log('CIS v2 cargado correctamente.');
+
+  // ── LOGOUT ────────────────────────────────────────────────
+  function hacerLogout() {
+    sessionStorage.removeItem('cis_usuario');
+    window.location.href = 'index.html';
   }
 
-  // Modificar botón "Zona Familias" si el usuario está registrado/logeado
+  // Soporte para ambos IDs (nav y sidebar)
+  ['logoutBtn', 'logoutBtnNav'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', hacerLogout);
+  });
+
+  // ── BOTÓN "ZONA FAMILIAS" dinámico ───────────────────────
   const sesionActiva = sessionStorage.getItem('cis_usuario');
   if (sesionActiva) {
     try {
       const usuarioObj = JSON.parse(sesionActiva);
-      // Busca el botón que apunte a login.html (normalmente "Zona Familias")
       const botonZonaFamilias = document.querySelector('a.btn-nav[href="login.html"]');
       if (botonZonaFamilias && usuarioObj.nombre) {
-        // En lugar de "Zona Familias", mostrar nombre y redirigir al portal
         const primerNombre = usuarioObj.nombre.split(' ')[0];
         botonZonaFamilias.textContent = `👤 Hola, ${primerNombre}`;
         botonZonaFamilias.href = 'portal.html';
       }
     } catch (e) {
-      console.error("Error leyendo datos del usuario:", e);
+      console.error('Error leyendo datos del usuario:', e);
     }
   }
 
-  // 1. NAVEGACIÓN MÓVIL
+  // ── NAVEGACIÓN MÓVIL ──────────────────────────────────────
   const hamburger = document.getElementById('hamburger');
-  const navLinks = document.getElementById('navLinks');
-  
+  const navLinks  = document.getElementById('navLinks');
+
   if (hamburger && navLinks) {
     hamburger.addEventListener('click', () => {
       navLinks.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', navLinks.classList.contains('open'));
     });
   }
 
-  // Cerrar menú al hacer clic en un enlace interno
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', () => {
       if (navLinks) navLinks.classList.remove('open');
     });
   });
 
-  // 2. CONFIGURACIÓN DEL INPUT DE FECHA
+  // ── FECHA MÍNIMA EN INPUT DATE ────────────────────────────
   const fechaInput = document.getElementById('fecha');
   if (fechaInput) {
     fechaInput.setAttribute('min', new Date().toISOString().split('T')[0]);
   }
 
-  // 3. FORMULARIO DE CITA
+  // ── FORMULARIO DE CITA ────────────────────────────────────
   const citaFormWrap = document.getElementById('citaFormWrap');
   const citaForm     = document.getElementById('citaForm');
 
   if (citaFormWrap) {
     const sesionRaw = sessionStorage.getItem('cis_usuario');
-
     if (!sesionRaw) {
-      // ── Sin sesión: mostrar aviso de registro ──
       citaFormWrap.innerHTML = `
         <div class="cita-auth-wall">
           <div class="cita-auth-icon">🔒</div>
@@ -77,7 +130,6 @@ function inicializarApp() {
           <p class="cita-auth-note">¿Tienes dudas antes de registrarte? Llámanos al <a href="tel:+34912345678">91&nbsp;234&nbsp;56&nbsp;78</a> o escríbenos a <a href="mailto:info@cis-madrid.es">info@cis-madrid.es</a></p>
         </div>`;
     } else {
-      // ── Con sesión: rellenar datos automáticamente ──
       const usuario = JSON.parse(sesionRaw);
       const campoNombre   = document.getElementById('nombre');
       const campoTelefono = document.getElementById('telefono');
@@ -91,8 +143,14 @@ function inicializarApp() {
   if (citaForm) {
     citaForm.removeAttribute('onsubmit');
 
-    citaForm.addEventListener('submit', function(e) {
+    // Crear contenedor de error inline para cita
+    const citaError = document.createElement('p');
+    citaError.style.cssText = 'color:#c62828;background:#ffebee;border-left:4px solid #c62828;padding:.65rem 1rem;border-radius:6px;font-size:.9rem;margin-bottom:1rem;display:none;';
+    citaForm.insertBefore(citaError, citaForm.firstChild);
+
+    citaForm.addEventListener('submit', function (e) {
       e.preventDefault();
+      ocultarError(citaError);
 
       const nombre     = document.getElementById('nombre').value.trim();
       const telefono   = document.getElementById('telefono').value.trim();
@@ -101,60 +159,53 @@ function inicializarApp() {
       const fecha      = document.getElementById('fecha').value;
       const hora       = document.getElementById('hora').value;
 
-      // Validación 1: Campos vacíos
       if (!nombre || !telefono || !email || !profesional || !fecha || !hora) {
-        alert("⚠️ Por favor, rellena todos los campos obligatorios.");
+        mostrarError(citaError, '⚠️ Por favor, rellena todos los campos obligatorios.');
+        return;
+      }
+      if (!telefonoValido(telefono)) {
+        mostrarError(citaError, '⚠️ Introduce un número de teléfono español válido (ej: 612345678 o 912345678).');
+        return;
+      }
+      if (!emailValido(email)) {
+        mostrarError(citaError, '⚠️ Introduce un correo electrónico válido (ej: usuario@dominio.com).');
         return;
       }
 
-      // Validación 2: Teléfono español (se aceptan fijos y móviles)
-      let telefonoLimpio = telefono.replace(/\s+/g, '');
-      if (!telefonoLimpio.startsWith('+')) telefonoLimpio = '+34' + telefonoLimpio;
-      const telRegex = /^\+34(?:[6789]\d{8}|\d{9})$/;
-      if (!telRegex.test(telefonoLimpio)) {
-        alert("⚠️ Por favor, introduce un número de teléfono español válido (ej: 612345678 o 912345678).");
-        return;
-      }
-      document.getElementById('telefono').value = telefonoLimpio;
-
-      // Validación 3: Email
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(email)) {
-        alert("⚠️ Por favor, introduce un correo electrónico válido (ej: usuario@dominio.com).");
-        return;
-      }
-
-      alert("✅ ¡Todo correcto! Redirigiendo a confirmación...");
+      document.getElementById('telefono').value = normalizarTelefono(telefono);
       const params = new URLSearchParams(new FormData(citaForm)).toString();
       window.location.href = 'confirmar-cita.html?' + params;
     });
   }
 
-  // 3.1 LOGIN → fetch a la API
+  // ── LOGIN FAMILIAS ────────────────────────────────────────
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-
-    // Contenedor de error inline
     const loginError = document.createElement('p');
     loginError.id = 'loginError';
     loginError.style.cssText = 'color:#c62828;background:#ffebee;border-left:4px solid #c62828;padding:.65rem 1rem;border-radius:6px;font-size:.9rem;margin-bottom:1rem;display:none;';
     loginForm.insertBefore(loginError, loginForm.firstChild);
 
-    function mostrarErrorLogin(msg) {
-      loginError.textContent = msg;
-      loginError.style.display = 'block';
+    // Aviso si no hay servidor
+    if (window.CIS_SIN_SERVIDOR) {
+      mostrarAvisoSinServidor(loginForm);
+      return;
     }
 
-    loginForm.addEventListener('submit', async function(e) {
+    loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      loginError.style.display = 'none';
+      ocultarError(loginError);
 
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+      const email     = document.getElementById('email').value.trim();
+      const password  = document.getElementById('password').value;
       const submitBtn = loginForm.querySelector('[type="submit"]');
 
       if (!email || !password) {
-        mostrarErrorLogin('⚠️ Por favor, rellena todos los campos.');
+        mostrarError(loginError, '⚠️ Por favor, rellena todos los campos.');
+        return;
+      }
+      if (!emailValido(email)) {
+        mostrarError(loginError, '⚠️ El correo electrónico no tiene un formato válido.');
         return;
       }
 
@@ -162,7 +213,7 @@ function inicializarApp() {
       submitBtn.textContent = 'Entrando...';
 
       try {
-        const resp = await fetch(API_BASE + '/api/login', {
+        const resp  = await fetch(window.API_BASE + '/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
@@ -170,16 +221,17 @@ function inicializarApp() {
         const datos = await resp.json();
 
         if (!datos.ok) {
-          mostrarErrorLogin('⚠️ ' + datos.mensaje);
+          mostrarError(loginError, '⚠️ ' + datos.mensaje);
           submitBtn.disabled = false;
           submitBtn.textContent = 'Entrar al portal';
           return;
         }
 
-        // Guardar sesión y redirigir
         sessionStorage.setItem('cis_usuario', JSON.stringify({
           id:       datos.usuario.id,
-          nombre:   datos.usuario.apellido ? (datos.usuario.nombre + ' ' + datos.usuario.apellido) : datos.usuario.nombre,
+          nombre:   datos.usuario.apellido
+            ? datos.usuario.nombre + ' ' + datos.usuario.apellido
+            : datos.usuario.nombre,
           rol:      datos.usuario.rol === 'admin' ? 'Administrador' : 'Tutor Legal',
           telefono: datos.usuario.telefono,
           email:    datos.usuario.email,
@@ -188,46 +240,67 @@ function inicializarApp() {
         window.location.href = 'portal.html';
 
       } catch (_err) {
-        mostrarErrorLogin('⚠️ No se pudo conectar con el servidor. Comprueba que la API está activa.');
+        mostrarError(loginError, '⚠️ No se pudo conectar con el servidor. Asegúrate de que la API está activa (npm run dev).');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Entrar al portal';
       }
     });
   }
 
-  // 3.2 REGISTRO → fetch a la API
+  // ── REGISTRO FAMILIAS ─────────────────────────────────────
   const registroForm = document.getElementById('registroForm');
   if (registroForm) {
-
-    // Contenedor de error inline
     const registroError = document.createElement('p');
     registroError.id = 'registroError';
     registroError.style.cssText = 'color:#c62828;background:#ffebee;border-left:4px solid #c62828;padding:.65rem 1rem;border-radius:6px;font-size:.9rem;margin-bottom:1rem;display:none;';
     registroForm.insertBefore(registroError, registroForm.firstChild);
 
-    function mostrarErrorRegistro(msg) {
-      registroError.textContent = msg;
-      registroError.style.display = 'block';
+    if (window.CIS_SIN_SERVIDOR) {
+      mostrarAvisoSinServidor(registroForm);
+      return;
     }
 
-    registroForm.addEventListener('submit', async function(e) {
+    registroForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      registroError.style.display = 'none';
+      ocultarError(registroError);
 
-      const nombre   = document.getElementById('nombre').value.trim();
-      const apellido = document.getElementById('apellido').value.trim();
-      const tlf      = document.getElementById('tlf').value.trim();
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+      const nombre    = document.getElementById('nombre').value.trim();
+      const apellido  = document.getElementById('apellido').value.trim();
+      const tlf       = document.getElementById('tlf').value.trim();
+      const email     = document.getElementById('email').value.trim();
+      const password  = document.getElementById('password').value;
+      const password2El = document.getElementById('password2');
+      const password2 = password2El ? password2El.value : password;
       const submitBtn = registroForm.querySelector('[type="submit"]');
 
-      // Validación cliente (rápida, antes de llamar a la API)
+      // Validaciones
       if (!nombre || !apellido || !tlf || !email || !password) {
-        mostrarErrorRegistro('⚠️ Por favor, rellena todos los campos.');
+        mostrarError(registroError, '⚠️ Por favor, rellena todos los campos obligatorios.');
+        return;
+      }
+      if (nombre.trim().length < 2) {
+        mostrarError(registroError, '⚠️ El nombre debe tener al menos 2 caracteres.');
+        return;
+      }
+      if (apellido.trim().length < 2) {
+        mostrarError(registroError, '⚠️ Los apellidos deben tener al menos 2 caracteres.');
+        return;
+      }
+      if (!emailValido(email)) {
+        mostrarError(registroError, '⚠️ El correo electrónico no tiene un formato válido.');
+        return;
+      }
+      if (!telefonoValido(tlf)) {
+        mostrarError(registroError, '⚠️ Introduce un teléfono español válido (ej: 612345678 o 912345678).');
         return;
       }
       if (password.length < 8) {
-        mostrarErrorRegistro('⚠️ La contraseña debe tener al menos 8 caracteres.');
+        mostrarError(registroError, '⚠️ La contraseña debe tener al menos 8 caracteres.');
+        return;
+      }
+      if (password2El && password !== password2) {
+        mostrarError(registroError, '⚠️ Las contraseñas no coinciden. Compruébalas e inténtalo de nuevo.');
+        if (password2El) password2El.focus();
         return;
       }
 
@@ -235,21 +308,26 @@ function inicializarApp() {
       submitBtn.textContent = 'Creando cuenta...';
 
       try {
-        const resp = await fetch(API_BASE + '/api/registro', {
+        const resp  = await fetch(window.API_BASE + '/api/registro', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre, apellido, email, telefono: tlf, password }),
+          body: JSON.stringify({
+            nombre,
+            apellido,
+            email,
+            telefono: normalizarTelefono(tlf),
+            password,
+          }),
         });
         const datos = await resp.json();
 
         if (!datos.ok) {
-          mostrarErrorRegistro('⚠️ ' + datos.mensaje);
+          mostrarError(registroError, '⚠️ ' + datos.mensaje);
           submitBtn.disabled = false;
           submitBtn.textContent = 'Crear perfil familiar';
           return;
         }
 
-        // Guardar sesión con datos reales del servidor
         sessionStorage.setItem('cis_usuario', JSON.stringify({
           id:       datos.usuario.id,
           nombre:   datos.usuario.nombre + ' ' + datos.usuario.apellido,
@@ -261,24 +339,25 @@ function inicializarApp() {
         window.location.href = 'portal.html';
 
       } catch (_err) {
-        mostrarErrorRegistro('⚠️ No se pudo conectar con el servidor. Comprueba que la API está activa.');
+        mostrarError(registroError, '⚠️ No se pudo conectar con el servidor. Asegúrate de que la API está activa (npm run dev).');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Crear perfil familiar';
       }
     });
   }
 
-  // 4. CARRUSEL MOTIVACIONAL
+  // ── CARRUSEL MOTIVACIONAL ─────────────────────────────────
   const track = document.getElementById('carouselTrack');
   if (track) {
     let currentSlide = 0;
-    const slides = track.querySelectorAll('.carousel-slide');
+    const slides   = track.querySelectorAll('.carousel-slide');
     const dotsWrap = document.getElementById('carouselDots');
-    
-    if (slides.length > 0) {
+
+    if (slides.length > 0 && dotsWrap) {
       slides.forEach((_, i) => {
         const btn = document.createElement('button');
         btn.className = 'dot-indicator' + (i === 0 ? ' active' : '');
+        btn.setAttribute('aria-label', `Diapositiva ${i + 1}`);
         btn.addEventListener('click', () => goToSlide(i));
         dotsWrap.appendChild(btn);
       });
@@ -291,49 +370,57 @@ function inicializarApp() {
         });
       }
 
-      function moveCarousel(dir) {
-        goToSlide(currentSlide + dir);
-      }
-
       const btnPrev = document.querySelector('.carousel-btn:first-of-type');
       const btnNext = document.querySelector('.carousel-btn:last-of-type');
-      
-      if (btnPrev) btnPrev.addEventListener('click', () => moveCarousel(-1));
-      if (btnNext) btnNext.addEventListener('click', () => moveCarousel(1));
+
+      if (btnPrev) btnPrev.addEventListener('click', () => goToSlide(currentSlide - 1));
+      if (btnNext) btnNext.addEventListener('click', () => goToSlide(currentSlide + 1));
 
       document.querySelectorAll('.carousel-btn').forEach(btn => btn.removeAttribute('onclick'));
-      setInterval(() => moveCarousel(1), 5000);
+      setInterval(() => goToSlide(currentSlide + 1), 5000);
     }
   }
 
-  // 5. PÁGINA DE CONFIRMAR CITA
+  // ── CONFIRMAR CITA ────────────────────────────────────────
   const dataTable = document.getElementById('dataTable');
   if (dataTable) {
     const params = new URLSearchParams(window.location.search);
     if (params.toString().length > 0) {
+      const etiquetas = {
+        nombre: 'Nombre', telefono: 'Teléfono', email: 'Correo',
+        profesional: 'Profesional', fecha: 'Fecha', hora: 'Hora',
+        curso: 'Curso / Motivo',
+      };
       let html = '';
       params.forEach((value, key) => {
-        let label = key.charAt(0).toUpperCase() + key.slice(1);
-        html += `<tr><td>${label}</td><td>${value || '-'}</td></tr>`;
+        const label = etiquetas[key] || (key.charAt(0).toUpperCase() + key.slice(1));
+        html += `<tr><td>${label}</td><td>${value || '–'}</td></tr>`;
       });
       dataTable.innerHTML = html;
     }
 
-    window.confirmarCita = async function() {
+    window.confirmarCita = async function () {
       const confirmBtn = document.querySelector('.btn-primary[onclick="confirmarCita()"]');
       if (confirmBtn) {
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Enviando...';
       }
 
+      if (window.CIS_SIN_SERVIDOR) {
+        alert('⚠️ El servidor no está disponible. Abre la app con el comando npm run dev para enviar la cita.');
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = '✅ Confirmar solicitud'; }
+        return;
+      }
+
+      const params  = new URLSearchParams(window.location.search);
       const bodyData = {};
       params.forEach((value, key) => { bodyData[key] = value; });
 
       try {
-        const res = await fetch(API_BASE + '/api/citas', {
+        const res = await fetch(window.API_BASE + '/api/citas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bodyData)
+          body: JSON.stringify(bodyData),
         });
 
         if (!res.ok) {
@@ -342,9 +429,10 @@ function inicializarApp() {
         }
 
         const confirmWrap = document.getElementById('confirmWrap');
-        const successMsg = document.getElementById('successMsg');
+        const successMsg  = document.getElementById('successMsg');
         if (confirmWrap) confirmWrap.classList.add('is-hidden');
-        if (successMsg) successMsg.classList.remove('is-hidden');
+        if (successMsg)  successMsg.classList.remove('is-hidden');
+
       } catch (err) {
         console.error(err);
         alert('⚠️ ' + err.message);
@@ -363,49 +451,79 @@ function inicializarApp() {
     errEl.style.cssText = 'color:#c62828;background:#ffebee;border-left:4px solid #c62828;padding:.65rem 1rem;border-radius:6px;font-size:.9rem;margin-bottom:1rem;display:none;';
     loginProfesionalForm.insertBefore(errEl, loginProfesionalForm.firstChild);
 
+    if (window.CIS_SIN_SERVIDOR) {
+      mostrarAvisoSinServidor(loginProfesionalForm);
+      return;
+    }
+
     loginProfesionalForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      errEl.style.display = 'none';
+      ocultarError(errEl);
+
       const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const btn      = loginProfesionalForm.querySelector('[type="submit"]');
 
-      if (!email || !password) { errEl.textContent = '⚠️ Rellena todos los campos.'; errEl.style.display = 'block'; return; }
-      btn.disabled = true; btn.textContent = 'Verificando...';
+      if (!email || !password) {
+        mostrarError(errEl, '⚠️ Rellena todos los campos.');
+        return;
+      }
+      if (!emailValido(email)) {
+        mostrarError(errEl, '⚠️ El correo electrónico no es válido.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
 
       try {
-        const resp  = await fetch(API_BASE + '/api/login-profesional', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+        const resp  = await fetch(window.API_BASE + '/api/login-profesional', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
         const datos = await resp.json();
+
         if (!datos.ok) {
-          errEl.textContent = '⚠️ ' + datos.mensaje; errEl.style.display = 'block';
-          btn.disabled = false; btn.textContent = 'Entrar al área profesional';
+          mostrarError(errEl, '⚠️ ' + datos.mensaje);
+          btn.disabled = false;
+          btn.textContent = 'Entrar al área profesional';
           return;
         }
+
         sessionStorage.setItem('cis_pro', JSON.stringify({
-          id: datos.usuario.id, nombre: datos.usuario.nombre,
-          email: datos.usuario.email, telefono: datos.usuario.telefono, rol: datos.usuario.rol,
+          id:       datos.usuario.id,
+          nombre:   datos.usuario.nombre,
+          email:    datos.usuario.email,
+          telefono: datos.usuario.telefono,
+          rol:      datos.usuario.rol,
         }));
         window.location.href = 'profesional-portal.html';
+
       } catch (_) {
-        errEl.textContent = '⚠️ No se pudo conectar con el servidor.'; errEl.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Entrar al área profesional';
+        mostrarError(errEl, '⚠️ No se pudo conectar con el servidor. Asegúrate de que la API está activa.');
+        btn.disabled = false;
+        btn.textContent = 'Entrar al área profesional';
       }
     });
   }
 
-  // ── REGISTRO PROFESIONAL ────────────────────────────────────
+  // ── REGISTRO PROFESIONAL ───────────────────────────────────
   const registroProfesionalForm = document.getElementById('registroProfesionalForm');
   if (registroProfesionalForm) {
     const errEl = document.createElement('p');
     errEl.style.cssText = 'color:#c62828;background:#ffebee;border-left:4px solid #c62828;padding:.65rem 1rem;border-radius:6px;font-size:.9rem;margin-bottom:1rem;display:none;';
     registroProfesionalForm.insertBefore(errEl, registroProfesionalForm.firstChild);
 
+    if (window.CIS_SIN_SERVIDOR) {
+      mostrarAvisoSinServidor(registroProfesionalForm);
+      return;
+    }
+
     registroProfesionalForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      errEl.style.display = 'none';
+      ocultarError(errEl);
+
       const nombre       = document.getElementById('nombre').value.trim();
       const tlf          = document.getElementById('tlf').value.trim();
       const email        = document.getElementById('email').value.trim();
@@ -414,74 +532,122 @@ function inicializarApp() {
       const btn          = registroProfesionalForm.querySelector('[type="submit"]');
 
       if (!nombre || !tlf || !email || !password || !codigoAcceso) {
-        errEl.textContent = '⚠️ Todos los campos son obligatorios.'; errEl.style.display = 'block'; return;
+        mostrarError(errEl, '⚠️ Todos los campos son obligatorios.');
+        return;
+      }
+      if (!emailValido(email)) {
+        mostrarError(errEl, '⚠️ El correo electrónico no es válido.');
+        return;
+      }
+      if (!telefonoValido(tlf)) {
+        mostrarError(errEl, '⚠️ Introduce un teléfono español válido (ej: 612345678).');
+        return;
       }
       if (password.length < 8) {
-        errEl.textContent = '⚠️ La contraseña debe tener al menos 8 caracteres.'; errEl.style.display = 'block'; return;
+        mostrarError(errEl, '⚠️ La contraseña debe tener al menos 8 caracteres.');
+        return;
       }
-      btn.disabled = true; btn.textContent = 'Creando cuenta...';
+
+      btn.disabled = true;
+      btn.textContent = 'Creando cuenta...';
 
       try {
-        const resp  = await fetch(API_BASE + '/api/registro-profesional', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre, email, telefono: tlf, password, codigoAcceso }),
+        const resp  = await fetch(window.API_BASE + '/api/registro-profesional', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre,
+            email,
+            telefono: normalizarTelefono(tlf),
+            password,
+            codigoAcceso,
+          }),
         });
         const datos = await resp.json();
+
         if (!datos.ok) {
-          errEl.textContent = '⚠️ ' + datos.mensaje; errEl.style.display = 'block';
-          btn.disabled = false; btn.textContent = 'Crear cuenta profesional';
+          mostrarError(errEl, '⚠️ ' + datos.mensaje);
+          btn.disabled = false;
+          btn.textContent = 'Crear cuenta profesional';
           return;
         }
+
         sessionStorage.setItem('cis_pro', JSON.stringify({
-          id: datos.usuario.id, nombre: datos.usuario.nombre,
-          email: datos.usuario.email, telefono: datos.usuario.telefono, rol: datos.usuario.rol,
+          id:       datos.usuario.id,
+          nombre:   datos.usuario.nombre,
+          email:    datos.usuario.email,
+          telefono: datos.usuario.telefono,
+          rol:      datos.usuario.rol,
         }));
         window.location.href = 'profesional-portal.html';
+
       } catch (_) {
-        errEl.textContent = '⚠️ No se pudo conectar con el servidor.'; errEl.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Crear cuenta profesional';
+        mostrarError(errEl, '⚠️ No se pudo conectar con el servidor. Asegúrate de que la API está activa.');
+        btn.disabled = false;
+        btn.textContent = 'Crear cuenta profesional';
       }
     });
   }
 
-  // ── LOGIN ADMINISTRADOR ─────────────────────────────────────────
+  // ── LOGIN ADMINISTRADOR ────────────────────────────────────
   const loginAdminForm = document.getElementById('loginAdminForm');
   if (loginAdminForm) {
     const errEl = document.createElement('p');
     errEl.style.cssText = 'color:#c62828;background:#ffebee;border-left:4px solid #c62828;padding:.65rem 1rem;border-radius:6px;font-size:.9rem;margin-bottom:1rem;display:none;';
     loginAdminForm.insertBefore(errEl, loginAdminForm.firstChild);
 
+    if (window.CIS_SIN_SERVIDOR) {
+      mostrarAvisoSinServidor(loginAdminForm);
+      return;
+    }
+
     loginAdminForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      errEl.style.display = 'none';
+      ocultarError(errEl);
+
       const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const btn      = loginAdminForm.querySelector('[type="submit"]');
 
       if (!email || !password) {
-        errEl.textContent = '⚠️ Rellena todos los campos.'; errEl.style.display = 'block'; return;
+        mostrarError(errEl, '⚠️ Rellena todos los campos.');
+        return;
       }
-      btn.disabled = true; btn.textContent = 'Verificando...';
+      if (!emailValido(email)) {
+        mostrarError(errEl, '⚠️ El correo electrónico no es válido.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
 
       try {
-        const resp  = await fetch(API_BASE + '/api/login-admin', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+        const resp  = await fetch(window.API_BASE + '/api/login-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
         const datos = await resp.json();
+
         if (!datos.ok) {
-          errEl.textContent = '⚠️ ' + datos.mensaje; errEl.style.display = 'block';
-          btn.disabled = false; btn.textContent = 'Entrar al panel';
+          mostrarError(errEl, '⚠️ ' + datos.mensaje);
+          btn.disabled = false;
+          btn.textContent = 'Entrar al panel';
           return;
         }
+
         sessionStorage.setItem('cis_admin', JSON.stringify({
-          id: datos.usuario.id, nombre: datos.usuario.nombre,
-          email: datos.usuario.email, rol: datos.usuario.rol,
+          id:     datos.usuario.id,
+          nombre: datos.usuario.nombre,
+          email:  datos.usuario.email,
+          rol:    datos.usuario.rol,
         }));
         window.location.href = 'admin-portal.html';
+
       } catch (_) {
-        errEl.textContent = '⚠️ No se pudo conectar con el servidor.'; errEl.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Entrar al panel';
+        mostrarError(errEl, '⚠️ No se pudo conectar con el servidor. Asegúrate de que la API está activa.');
+        btn.disabled = false;
+        btn.textContent = 'Entrar al panel';
       }
     });
   }
@@ -498,15 +664,13 @@ if (document.readyState === 'loading') {
 // BANNER DE COOKIES
 // ---------------------------------------------------------
 (function () {
-  // No mostrar en la propia página de política de cookies
   if (window.location.pathname.endsWith('cookies.html')) return;
 
-  // Comprobar si ya hay consentimiento válido (guardado con timestamp de 12 meses)
   function consentExpired() {
     const raw = localStorage.getItem('cookie_consent');
     if (!raw) return true;
     try {
-      const data = JSON.parse(raw);
+      const data  = JSON.parse(raw);
       const doceM = 12 * 30 * 24 * 60 * 60 * 1000;
       return (Date.now() - data.ts) > doceM;
     } catch (_) { return true; }
@@ -514,14 +678,13 @@ if (document.readyState === 'loading') {
 
   if (!consentExpired()) return;
 
-  // Construir el banner
   const banner = document.createElement('div');
   banner.id = 'cookie-banner';
   banner.setAttribute('role', 'region');
   banner.setAttribute('aria-label', 'Aviso de cookies');
 
-  // La ruta a cookies.html es relativa: puede estar en html/ o en raíz
-  const estaEnHtml = window.location.pathname.includes('/html/');
+  const estaEnHtml = window.location.pathname.includes('/html/') ||
+                     window.location.protocol === 'file:';
   const urlCookies = estaEnHtml ? 'cookies.html' : 'html/cookies.html';
 
   banner.innerHTML = `
@@ -534,13 +697,12 @@ if (document.readyState === 'loading') {
 
   document.body.appendChild(banner);
 
-  // Animar entrada tras un frame
   requestAnimationFrame(() => {
     requestAnimationFrame(() => banner.classList.add('visible'));
   });
 
   function saveConsent(value) {
-    localStorage.setItem('cookie_consent', JSON.stringify({ value: value, ts: Date.now() }));
+    localStorage.setItem('cookie_consent', JSON.stringify({ value, ts: Date.now() }));
     banner.classList.remove('visible');
     banner.addEventListener('transitionend', () => banner.remove(), { once: true });
   }

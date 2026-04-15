@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const API = API_BASE;
+  const API = window.API_BASE;
 
   /* ----------------------------------------------------------
      GUARDIA: solo admins
