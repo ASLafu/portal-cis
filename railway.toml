@@ -5,3 +5,14 @@ builder = "nixpacks"
 startCommand = "node api/server.js"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
+
+[deploy.healthchecks.httpGet]
+# Healthcheck sin dependencia de BD
+path = "/health"
+# Sin especificar puerto: Railway usará el que asigne
+intervalSeconds = 10
+timeoutSeconds = 5
+
+[deploy.postDeploy]
+# Inicializar la base de datos después del despliegue
+command = "bash api/init-db.sh"

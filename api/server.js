@@ -40,27 +40,30 @@ app.get('/', (_req, res) => res.sendFile(path.join(ROOT, 'html', 'index.html')))
 
 // ------------------------------------------------------------
 //  Pool de conexiones MySQL
+// En Railway: lee MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE
+// En local: lee de .env (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
 // ------------------------------------------------------------
 const pool = mysql.createPool({
-  host:               process.env.DB_HOST     || 'localhost',
-  port:               Number(process.env.DB_PORT) || 3306,
-  user:               process.env.DB_USER     || 'root',
-  password:           process.env.DB_PASSWORD || '',
-  database:           process.env.DB_NAME     || 'cis_madrid',
+  host:               process.env.MYSQLHOST     || process.env.DB_HOST     || 'localhost',
+  port:               Number(process.env.MYSQLPORT)     || Number(process.env.DB_PORT) || 3306,
+  user:               process.env.MYSQLUSER     || process.env.DB_USER     || 'root',
+  password:           process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+  database:           process.env.MYSQLDATABASE || process.env.DB_NAME     || 'cis_madrid',
   waitForConnections: true,
   connectionLimit:    10,
   charset:            'utf8mb4',
 });
 
-// Verificar conexión al arrancar
+// Verificar conexión al arrancar (no-bloqueante)
+// En Railway la base de datos puede no estar disponible inicialmente
 pool.getConnection()
   .then(conn => {
     console.log('✅  Conectado a MySQL →', process.env.DB_NAME || 'cis_madrid');
     conn.release();
   })
   .catch(err => {
-    console.error('❌  Error de conexión MySQL:', err.message);
-    console.error('    Asegúrate de que XAMPP está arrancado y la BD cis_madrid existe.');
+    console.warn('⚠️  Base de datos no disponible al iniciar:', err.message);
+    console.warn('    Las consultas a DB fallarán hasta que la conexión sea válida.');
   });
 
 // ------------------------------------------------------------
@@ -184,15 +187,31 @@ function telefonoValido(tel) {
 }
 
 // ------------------------------------------------------------
-//  GET /api/health  – Estado de la API
+//  GET /api/health  – Estado de la API (sin dependencia de BD)
 // ------------------------------------------------------------
 app.get('/api/health', async (_req, res) => {
+  // En Railway, la BD puede no estar disponible al iniciar
+  // Por eso devolvemos OK si el servidor Node responde, sin validar la BD
   try {
-    await pool.query('SELECT 1');
-    return okRes(res, { mensaje: 'API CIS funcionando correctamente', bd: 'conectada' });
-  } catch {
-    return res.status(503).json({ ok: false, mensaje: 'API activa pero sin conexión a la BD' });
+    const [result] = await pool.query('SELECT 1');
+    return okRes(res, { 
+      mensaje: 'API CIS funcionando correctamente', 
+      bd: 'conectada',
+      mysql: true 
+    });
+  } catch (err) {
+    // BD no disponible, pero servidor Node sigue activo
+    return okRes(res, { 
+      mensaje: 'API activa pero sin conexión a la BD', 
+      bd: 'desconectada',
+      mysql: false 
+    });
   }
+});
+
+// Ruta de healthcheck ligera para Railway / deploy
+app.get('/health', (_req, res) => {
+  return res.status(200).json({ ok: true, mensaje: 'Servidor en funcionamiento' });
 });
 
 // ------------------------------------------------------------
@@ -958,8 +977,9 @@ app.use((_req, res) => {
 
 // ------------------------------------------------------------
 //  Arrancar servidor
+//  En Railway/cloud: escuchar en 0.0.0.0, no solo localhost
 // ------------------------------------------------------------
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log('');
   console.log('╔══════════════════════════════════════════╗');
   console.log('║   CIS API – Centro de Intervención       ║');
