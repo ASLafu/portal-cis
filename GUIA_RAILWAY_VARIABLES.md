@@ -20,12 +20,12 @@ MYSQLHOST = mysql.railway.internal
 MYSQLPORT = 3306
 MYSQLUSER = root
 MYSQLPASSWORD = xxxxxxxxxxxx
-MYSQLDATABASE = railway
+MYSQLDATABASE = cis_madrid
 ```
 
 **O verás una cadena única tipo:**
 ```
-DATABASE_URL = mysql://root:password@mysql.railway.internal:3306/railway
+DATABASE_URL = mysql://root:password@mysql.railway.internal:3306/cis_madrid
 ```
 
 ### Opción B: Desde el servicio Node.js
@@ -44,13 +44,13 @@ MYSQLHOST=mysql.railway.internal
 MYSQLPORT=3306
 MYSQLUSER=root
 MYSQLPASSWORD=[COPIA EL PASSWORD EXACTO]
-MYSQLDATABASE=railway
+MYSQLDATABASE=cis_madrid
 ```
 
 ⚠️ **IMPORTANTE:**
 - `MYSQLHOST` normalmente es `mysql.railway.internal` (NO localhost)
 - El `MYSQLPASSWORD` debe ser **exacto** (sin comillas, sin espacios)
-- El `MYSQLDATABASE` por defecto es `railway` (si tu SQL importa a otro nombre, cámbialo)
+- El `MYSQLDATABASE` por defecto es `cis_madrid` para este proyecto, porque el esquema SQL crea esa base de datos.
 
 ---
 

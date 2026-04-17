@@ -4,8 +4,8 @@
 
 echo "🚀 Inicializando base de datos MySQL en Railway..."
 
-if [ -z "$MYSQLHOST" ] || [ -z "$MYSQLUSER" ] || [ -z "$MYSQLDATABASE" ]; then
-    echo "❌ Faltan variables de entorno MySQL necesarias. Verifica MYSQLHOST, MYSQLUSER y MYSQLDATABASE."
+if [ -z "$MYSQLHOST" ] || [ -z "$MYSQLUSER" ]; then
+    echo "❌ Faltan variables de entorno MySQL necesarias. Verifica MYSQLHOST y MYSQLUSER."
     exit 1
 fi
 
@@ -16,7 +16,8 @@ cd "$(dirname "$0")/.." || exit 1
 sleep 10
 
 # Importar la estructura de la base de datos
-mysql -h "$MYSQLHOST" -u "$MYSQLUSER" -p"$MYSQLPASSWORD" "$MYSQLDATABASE" < cis_madrid.sql
+# El archivo cis_madrid.sql crea y selecciona la base de datos cis_madrid por sí mismo.
+mysql -h "$MYSQLHOST" -P "${MYSQLPORT:-3306}" -u "$MYSQLUSER" -p"$MYSQLPASSWORD" < cis_madrid.sql
 
 if [ $? -eq 0 ]; then
     echo "✅ Base de datos inicializada correctamente"
