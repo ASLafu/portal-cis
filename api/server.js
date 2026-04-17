@@ -13,7 +13,7 @@ const cors    = require('cors');
 const mysql   = require('mysql2/promise');
 const bcrypt  = require('bcryptjs');
 const crypto  = require('crypto');
-const mailer  = require('nodemailer');
+const https   = require('https');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -43,12 +43,40 @@ app.get('/', (_req, res) => res.sendFile(path.join(ROOT, 'html', 'index.html')))
 // En Railway: lee MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE
 // En local: lee de .env (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
 // ------------------------------------------------------------
+const MYSQL_HOST     = process.env.MYSQLHOST     || process.env.MYSQL_HOST     || process.env.DB_HOST     || 'localhost';
+const MYSQL_PORT     = Number(process.env.MYSQLPORT || process.env.MYSQL_PORT || process.env.DB_PORT) || 3306;
+const MYSQL_USER     = process.env.MYSQLUSER     || process.env.MYSQL_USER     || process.env.DB_USER     || 'root';
+const MYSQL_PASSWORD = process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '';
+const MYSQL_DATABASE = process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || process.env.DB_NAME     || 'cis_madrid';
+
+// Log de inicialización para diagnosticar problemas de conexión
+console.log('[MYSQL CONFIG] Variables detectadas:');
+console.log('  MYSQLHOST:', process.env.MYSQLHOST ? '✓ set' : '✗ not set');
+console.log('  MYSQL_HOST:', process.env.MYSQL_HOST ? '✓ set' : '✗ not set');
+console.log('  DB_HOST:', process.env.DB_HOST ? '✓ set' : '✗ not set');
+console.log('  → Host usado:', MYSQL_HOST);
+console.log('');
+console.log('  MYSQLUSER:', process.env.MYSQLUSER ? '✓ set' : '✗ not set');
+console.log('  MYSQL_USER:', process.env.MYSQL_USER ? '✓ set' : '✗ not set');
+console.log('  DB_USER:', process.env.DB_USER ? '✓ set' : '✗ not set');
+console.log('  → User usado:', MYSQL_USER);
+console.log('');
+console.log('  MYSQLPASSWORD:', process.env.MYSQLPASSWORD ? '✓ set (length: ' + process.env.MYSQLPASSWORD.length + ')' : '✗ not set');
+console.log('  MYSQL_PASSWORD:', process.env.MYSQL_PASSWORD ? '✓ set (length: ' + process.env.MYSQL_PASSWORD.length + ')' : '✗ not set');
+console.log('  DB_PASSWORD:', process.env.DB_PASSWORD ? '✓ set (length: ' + process.env.DB_PASSWORD.length + ')' : '✗ not set');
+console.log('  → Password longitud:', MYSQL_PASSWORD.length);
+console.log('');
+console.log('  MYSQLDATABASE:', process.env.MYSQLDATABASE ? '✓ set' : '✗ not set');
+console.log('  MYSQL_DATABASE:', process.env.MYSQL_DATABASE ? '✓ set' : '✗ not set');
+console.log('  DB_NAME:', process.env.DB_NAME ? '✓ set' : '✗ not set');
+console.log('  → Database usado:', MYSQL_DATABASE);
+
 const pool = mysql.createPool({
-  host:               process.env.MYSQLHOST     || process.env.DB_HOST     || 'localhost',
-  port:               Number(process.env.MYSQLPORT)     || Number(process.env.DB_PORT) || 3306,
-  user:               process.env.MYSQLUSER     || process.env.DB_USER     || 'root',
-  password:           process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
-  database:           process.env.MYSQLDATABASE || process.env.DB_NAME     || 'cis_madrid',
+  host:               MYSQL_HOST,
+  port:               MYSQL_PORT,
+  user:               MYSQL_USER,
+  password:           MYSQL_PASSWORD,
+  database:           MYSQL_DATABASE,
   waitForConnections: true,
   connectionLimit:    10,
   charset:            'utf8mb4',
@@ -56,10 +84,10 @@ const pool = mysql.createPool({
 
 // Verificar conexión al arrancar (no-bloqueante)
 // En Railway la base de datos puede no estar disponible inicialmente
-const dbHost = process.env.MYSQLHOST     || process.env.DB_HOST     || 'localhost';
-const dbPort = Number(process.env.MYSQLPORT)     || Number(process.env.DB_PORT) || 3306;
-const dbUser = process.env.MYSQLUSER     || process.env.DB_USER     || 'root';
-const dbName = process.env.MYSQLDATABASE || process.env.DB_NAME     || 'cis_madrid';
+const dbHost = MYSQL_HOST;
+const dbPort = MYSQL_PORT;
+const dbUser = MYSQL_USER;
+const dbName = MYSQL_DATABASE;
 
 console.log(`[INIT] Conectando a MySQL: ${dbUser}@${dbHost}:${dbPort}/${dbName}`);
 
@@ -71,26 +99,72 @@ pool.getConnection()
   .catch(err => {
     console.warn('⚠️  Base de datos no disponible al iniciar:', err.message);
     console.warn(`    Intenta conectar a: ${dbUser}@${dbHost}:${dbPort}/${dbName}`);
-    console.warn('    Verifica que MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE estén configuradas en Railway.');
+    console.warn('    Verifica que MYSQLHOST / MYSQL_HOST, MYSQLPORT / MYSQL_PORT, MYSQLUSER / MYSQL_USER, MYSQLPASSWORD / MYSQL_PASSWORD, MYSQLDATABASE / MYSQL_DATABASE estén configuradas en Railway.');
+    console.warn('    Si dice "using password: NO", significa que no se detectó la contraseña.');
   });
 
 // ------------------------------------------------------------
-//  Transporter de email (Gmail SMTP)
+//  Envío de email via Brevo HTTP API (sin SMTP, sin puertos bloqueados)
 // ------------------------------------------------------------
-const transport = mailer.createTransport({
-  host:   process.env.SMTP_HOST || 'smtp.gmail.com',
-  port:   Number(process.env.SMTP_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
 
-// Verificar conexión SMTP al arrancar
-transport.verify()
-  .then(() => console.log('✅  SMTP Gmail conectado →', process.env.SMTP_USER))
-  .catch(err => console.warn('⚠️  SMTP no disponible:', err.message));
+/** Parsea 'Nombre <email>' o 'email' devolviendo [nombre, email] */
+function parseEmailFrom(from) {
+  const match = (from || '').match(/^(.+?)\s*<(.+?)>$/);
+  if (match) return [match[1].trim(), match[2].trim()];
+  return ['CIS Madrid', (from || 'cismadrid23@gmail.com').trim()];
+}
+
+/**
+ * Envía un email transaccional usando la API REST de Brevo.
+ * Requiere variable de entorno: BREVO_API_KEY
+ */
+async function sendBrevoEmail({ from, to, subject, html }) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) throw new Error('BREVO_API_KEY no configurada');
+
+  const emailFrom = from || process.env.EMAIL_FROM || 'CIS Madrid <cismadrid23@gmail.com>';
+  const [senderName, senderEmail] = parseEmailFrom(emailFrom);
+
+  const body = JSON.stringify({
+    sender:      { name: senderName, email: senderEmail },
+    to:          [{ email: to }],
+    subject,
+    htmlContent: html,
+  });
+
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'api.brevo.com',
+      path:     '/v3/smtp/email',
+      method:   'POST',
+      headers:  {
+        'api-key':       apiKey,
+        'Content-Type':  'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(JSON.parse(data));
+        } else {
+          reject(new Error(`Brevo API error ${res.statusCode}: ${data}`));
+        }
+      });
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+// Verificar API key al arrancar
+if (process.env.BREVO_API_KEY) {
+  console.log('✅  Brevo API configurada → envío de email listo');
+} else {
+  console.warn('⚠️  BREVO_API_KEY no definida – el envío de emails no funcionará');
+}
 
 /**
  * Envía el email de solicitud de consentimiento al tutor legal.
@@ -158,7 +232,7 @@ async function sendConsentEmail({ emailTutor, nombreTutor, nombrePaciente, nombr
   </body>
   </html>`;
 
-  await transport.sendMail({
+  await sendBrevoEmail({
     from:    process.env.EMAIL_FROM || 'CIS Madrid <cismadrid23@gmail.com>',
     to:      emailTutor,
     subject: `📋 Solicitud de consentimiento para ${nombrePaciente} – CIS Madrid`,
@@ -230,17 +304,29 @@ app.get('/api/diagnostico', (_req, res) => {
     ambiente: process.env.NODE_ENV || 'desarrollo',
     puerto: PORT,
     mysql: {
-      host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
-      port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
-      user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-      database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'cis_madrid',
-      passwordConfigured: !!(process.env.MYSQLPASSWORD || process.env.DB_PASSWORD),
+      host_usado: MYSQL_HOST,
+      port_usado: MYSQL_PORT,
+      user_usado: MYSQL_USER,
+      database_usado: MYSQL_DATABASE,
+      passwordConfigured: !!MYSQL_PASSWORD,
+      // Raw values from env
+      MYSQLHOST: process.env.MYSQLHOST,
+      MYSQL_HOST: process.env.MYSQL_HOST,
+      DB_HOST: process.env.DB_HOST,
+      MYSQLPORT: process.env.MYSQLPORT,
+      MYSQL_PORT: process.env.MYSQL_PORT,
+      DB_PORT: process.env.DB_PORT,
+      MYSQLUSER: process.env.MYSQLUSER,
+      MYSQL_USER: process.env.MYSQL_USER,
+      DB_USER: process.env.DB_USER,
+      MYSQLDATABASE: process.env.MYSQLDATABASE,
+      MYSQL_DATABASE: process.env.MYSQL_DATABASE,
+      DB_NAME: process.env.DB_NAME,
     },
     email: {
-      smtp_host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      smtp_port: process.env.SMTP_PORT || 587,
+      proveedor: 'Brevo HTTP API',
       email_from: process.env.EMAIL_FROM || 'CIS Madrid <cismadrid23@gmail.com>',
-      smtp_user_configured: !!process.env.SMTP_USER,
+      brevo_api_key_configured: !!process.env.BREVO_API_KEY,
     },
     mensaje: 'Usa este endpoint para verificar que todas las variables de entorno están configuradas correctamente en Railway.',
   });
@@ -752,7 +838,7 @@ app.post('/api/citas', async (req, res) => {
 
     // Enviar correo de confirmación
     try {
-      await transport.sendMail({
+      await sendBrevoEmail({
         from: process.env.EMAIL_FROM || 'CIS Madrid <cismadrid23@gmail.com>',
         to: email,
         subject: `✅ Confirmación de solicitud – CIS Madrid`,
