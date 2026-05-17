@@ -1,8 +1,8 @@
 # CIS2026 - Portal Web y API
 
-Proyecto web del Centro de Intervencion Psicoeducativa con frontend estatico y API en Node.js/Express.
+Proyecto web del Centro de Intervencion Psicoeducativa con frontend estático y API en Node.js/Express.
 
-## Ejecucion
+## Ejecución
 
 - Iniciar API: `npm start`
 - Modo desarrollo: `npm run dev`
@@ -21,14 +21,14 @@ Proyecto web del Centro de Intervencion Psicoeducativa con frontend estatico y A
 
 - `api/`: backend, scripts de inicializacion de BD
 - `html/`, `css/`, `js/`, `imagenes/`: frontend
-- `docs/`: documentacion (tecnica, guias, incidencias y artifacts)
-- `scripts/`: utilidades de mantenimiento por tecnologia (`node`, `powershell`, `python`)
+- `docs/`: documentación (técnica, guias, incidencias y artifacts)
+- `scripts/`: utilidades de mantenimiento por tecnología (`node`, `powershell`, `python`)
 - `tests/`: pruebas/manual tests auxiliares
 - `private/`: archivos sensibles locales (ignorado por Git)
 
 ## Estructura de docs
 
-- `docs/tecnica/Proyecto_CIS_Documentacion.html`
+- `docs/técnica/Proyecto_CIS_Documentacion.html`
 - `docs/guias/`
 - `docs/incidencias/`
 - `docs/artifacts/`
